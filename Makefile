@@ -9,3 +9,7 @@ test:
 house:
 	@$(vw) house_dataset
 	@$(vw) house_dataset -l 10 -c --passes 25 --holdout_off -f house.model
+
+kernel:
+	python -m pip install ipykernel
+	python -m ipykernel install --user
