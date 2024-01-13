@@ -256,10 +256,10 @@ vw = vowpalwabbit.Workspace("--cb 4", quiet=False)
 ```python
 for i in train_df.index:
     action, cost, probability, feature1, feature2, feature3 = train_df.loc[i]
-    
+
     # Construct the example in the required vw format.
-    learn_example = f'{action}:{cost}:{probability} | {feature1} {feature2} {feature3}'
-    
+    learn_example = f"{action}:{cost}:{probability} | {feature1} {feature2} {feature3}"
+
     # Here we do the actual learning.
     vw.learn(learn_example)
 ```
@@ -273,7 +273,7 @@ for i in train_df.index:
 ```python
 for j in test_df.index:
     feature1, feature2, feature3 = test_df.loc[j]
-    test_example = f'| {feature1} {feature2} {feature3}'
+    test_example = f"| {feature1} {feature2} {feature3}"
     choice = vw.predict(test_example)
     print(j, choice)
 ```
@@ -343,29 +343,18 @@ print(vw.predict("| a d"))
 
 ```python
 while True:
-    n = input('enter a number between 1 to 4:') or '1'
+    n = input("enter a number between 1 to 4:") or "1"
     action, cost, probability = int(n), 1, 0.25
     if action < 0:
         break
     # Construct the example in the required vw format.
-    learn_example = f'{action}:{cost}:{probability} | a b'
-    
+    learn_example = f"{action}:{cost}:{probability} | a b"
+
     # Here we do the actual learning.
     vw.learn(learn_example)
 
     print(vw.predict("| a b"))
 ```
 
-    enter a number between 1 to 4: 1
-
-
-    3
-
-
     enter a number between 1 to 4: -1
 
-
-
-```python
-
-```
