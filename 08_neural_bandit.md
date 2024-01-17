@@ -16,6 +16,8 @@ USER_LIKED_ARTICLE = 1.0
 USER_DISLIKED_ARTICLE = 0.0
 ```
 
+## Initial Cost Function
+
 
 ```python
 def get_cost(context, action):
@@ -59,13 +61,23 @@ one_hot_encode("Tom", "morning", "politics")
 ```python
 from sklearn.feature_extraction import FeatureHasher
 
-hasher = FeatureHasher(n_features=10, input_type="string")
+hasher = FeatureHasher(n_features=100, input_type="string")
 print(hasher.transform([["a", "b", "c"]]).toarray())
 print(hasher.transform([["c", "a", "b"]]).toarray())
 ```
 
-    [[ 1. -1.  0.  0.  0.  0.  0. -1.  0.  0.]]
-    [[ 1. -1.  0.  0.  0.  0.  0. -1.  0.  0.]]
+    [[ 0.  0.  0.  0.  0.  0.  0.  0.  0.  0.  0.  0.  0.  0.  0.  0.  0. -1.
+       0.  0.  0.  0.  0.  0.  0.  0.  0.  0.  0.  0.  0.  0.  0.  0.  0.  0.
+       0.  0.  0.  0.  0.  0.  0.  0.  0.  0.  0.  0.  0.  0.  1.  0.  0.  0.
+       0.  0.  0.  0.  0.  0.  0. -1.  0.  0.  0.  0.  0.  0.  0.  0.  0.  0.
+       0.  0.  0.  0.  0.  0.  0.  0.  0.  0.  0.  0.  0.  0.  0.  0.  0.  0.
+       0.  0.  0.  0.  0.  0.  0.  0.  0.  0.]]
+    [[ 0.  0.  0.  0.  0.  0.  0.  0.  0.  0.  0.  0.  0.  0.  0.  0.  0. -1.
+       0.  0.  0.  0.  0.  0.  0.  0.  0.  0.  0.  0.  0.  0.  0.  0.  0.  0.
+       0.  0.  0.  0.  0.  0.  0.  0.  0.  0.  0.  0.  0.  0.  1.  0.  0.  0.
+       0.  0.  0.  0.  0.  0.  0. -1.  0.  0.  0.  0.  0.  0.  0.  0.  0.  0.
+       0.  0.  0.  0.  0.  0.  0.  0.  0.  0.  0.  0.  0.  0.  0.  0.  0.  0.
+       0.  0.  0.  0.  0.  0.  0.  0.  0.  0.]]
 
 
 
@@ -111,7 +123,14 @@ feature_interaction("Tom", "morning", "politics")
 
 
 
-    array([ 0.,  0., -1.,  1.,  0.,  0.,  2.,  0.,  1.,  0.])
+    array([ 0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,
+            0.,  0.,  0.,  1.,  0.,  0.,  0.,  0.,  0., -1.,  0.,  0.,  0.,
+            0.,  0.,  1.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,
+            0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,
+            0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  1.,  0.,
+            0.,  1.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,
+            0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,
+            0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.])
 
 
 
@@ -160,7 +179,7 @@ rewards, p, action
              0.13795523, -0.00638099]),
      array([0.14313913, 0.13078037, 0.16230165, 0.14860396, 0.16601842,
             0.13355323, 0.11560323]),
-     'camping')
+     'music')
 
 
 
@@ -174,7 +193,7 @@ model.predict([feature_interaction("Tom", "morning", "politics")])
 
 
 
-    array([0.30681819])
+    array([-0.2630957])
 
 
 
@@ -192,10 +211,10 @@ rewards, p, action
 
 
 
-    (array([0.30681819, 0.82605623, 0.57201208, 0.39640068, 0.28572226,
-            0.5167437 , 0.44741572]),
-     array([0.11845786, 0.19909764, 0.15443159, 0.12955945, 0.11598506,
-            0.14612798, 0.13634042]),
+    (array([-0.2630957 ,  0.00163442,  0.11983192, -0.16832187, -0.17202174,
+            -0.50245108, -0.25462197]),
+     array([0.12886505, 0.16792137, 0.18898985, 0.14167554, 0.14115233,
+            0.1014342 , 0.12996165]),
      'finance')
 
 
@@ -210,13 +229,13 @@ rewards, p, softmax(rewards), action
 
 
 
-    (array([0.30681819, 0.82605623, 0.57201208, 0.39640068, 0.28572226,
-            0.5167437 , 0.44741572]),
-     array([0.03918545, 0.5255765 , 0.14756592, 0.06132687, 0.0352627 ,
-            0.11193665, 0.07914592]),
-     array([0.11845786, 0.19909764, 0.15443159, 0.12955945, 0.11598506,
-            0.14612798, 0.13634042]),
-     'sports')
+    (array([-0.2630957 ,  0.00163442,  0.11983192, -0.16832187, -0.17202174,
+            -0.50245108, -0.25462197]),
+     array([0.06222778, 0.23379674, 0.4221833 , 0.09995006, 0.09811804,
+            0.01880315, 0.06492093]),
+     array([0.12886505, 0.16792137, 0.18898985, 0.14167554, 0.14115233,
+            0.1014342 , 0.12996165]),
+     'music')
 
 
 
@@ -237,9 +256,27 @@ def get_action(model, context, actions, preprocess):
             for action in actions
         ]
     )
-    action = np.random.choice(actions, p=softmax(rewards, tau=0.2))
+    action = actions[np.argmax(rewards)]
+    # action = np.random.choice(actions, p=softmax(rewards, tau=0.2))
     return action
 ```
+
+
+```python
+get_action(
+    model,
+    {"user": "Tom", "time_of_day": "morning"},
+    ["politics", "sports"],
+    feature_interaction,
+)
+```
+
+
+
+
+    'sports'
+
+
 
 
 ```python
@@ -253,6 +290,7 @@ def run_simulation(
     do_learn=True,
     preprocess=one_hot_encode,
 ):
+    print(f"Learn: {do_learn}")
     cost_sum = 0.0
     ctr = []
 
@@ -274,8 +312,7 @@ def run_simulation(
             # 5. Learn
             model.partial_fit([preprocess(user, time_of_day, action)], [cost])
 
-        # We negate this so that on the plot instead of minimizing cost, we are maximizing reward
-        ctr.append(1 * cost_sum / i)
+        ctr.append(cost_sum / i)
 
     return ctr
 ```
@@ -300,9 +337,12 @@ old_ctr = ctr
 plot_ctr(num_iterations, ctr)
 ```
 
+    Learn: True
+
+
 
     
-![png](08_neural_bandit_files/08_neural_bandit_18_0.png)
+![png](08_neural_bandit_files/08_neural_bandit_20_1.png)
     
 
 
@@ -310,8 +350,9 @@ plot_ctr(num_iterations, ctr)
 ```python
 num_iterations = 5000
 # Need to fit at least once.
-model = MLPRegressor(activation="relu", random_state=42)
-model.partial_fit([feature_interaction("Tom", "morning", "politics")], [1])
+model = MLPRegressor(random_state=42)
+model.partial_fit([feature_interaction("Tom", "morning", "politics")], [0])
+
 ctr = run_simulation(
     model,
     num_iterations,
@@ -327,16 +368,19 @@ plot_ctr(num_iterations, ctr)
 plt.legend(["one_hot_encode", "feature_interaction"])
 ```
 
+    Learn: True
 
 
 
-    <matplotlib.legend.Legend at 0x12005abf0>
+
+
+    <matplotlib.legend.Legend at 0x11fc829b0>
 
 
 
 
     
-![png](08_neural_bandit_files/08_neural_bandit_19_1.png)
+![png](08_neural_bandit_files/08_neural_bandit_21_2.png)
     
 
 
@@ -349,7 +393,7 @@ get_action(model, context, actions, feature_interaction)
 
 
 
-    'sports'
+    'politics'
 
 
 
@@ -365,6 +409,8 @@ get_action(model, context, actions, feature_interaction)
     'politics'
 
 
+
+## Updated Cost Function
 
 
 ```python
@@ -420,7 +466,7 @@ def run_simulation_multiple_cost_functions(
                 # 5. Inform VW of what happened so we can learn from it
                 model.partial_fit([preprocess(user, time_of_day, action)], [cost])
 
-            ctr.append(1 * cost_sum / i)
+            ctr.append(cost_sum / i)
         start_counter = end_counter
         end_counter = start_counter + num_iterations
 
@@ -429,8 +475,8 @@ def run_simulation_multiple_cost_functions(
 
 
 ```python
-model = MLPRegressor(activation="relu", random_state=42)
-cost_functions = [get_cost, get_cost_new1]
+model = MLPRegressor(random_state=42)
+cost_functions = [get_cost, get_cost_new1, get_cost_new1]
 num_iterations_per_cost_func = 5000
 total_iterations = num_iterations_per_cost_func * len(cost_functions)
 
@@ -450,6 +496,50 @@ plot_ctr(total_iterations, ctr)
 
 
     
-![png](08_neural_bandit_files/08_neural_bandit_24_0.png)
+![png](08_neural_bandit_files/08_neural_bandit_27_0.png)
+    
+
+
+## Using softmax for faster convergence
+
+
+```python
+def get_action(model, context, actions, preprocess):
+    rewards = model.predict(
+        [
+            preprocess(context["user"], context["time_of_day"], action)
+            for action in actions
+        ]
+    )
+    # action = actions[np.argmax(rewards)]
+    action = np.random.choice(actions, p=softmax(rewards, tau=0.2))
+    return action
+```
+
+
+```python
+# TODO: add tqdm
+model = MLPRegressor(random_state=42)
+cost_functions = [get_cost, get_cost_new1, get_cost_new1]
+num_iterations_per_cost_func = 5000
+total_iterations = num_iterations_per_cost_func * len(cost_functions)
+
+# Need to fit at least one data before using.\n",
+model.partial_fit([feature_interaction("Tom", "morning", "politics")], [1])
+ctr = run_simulation_multiple_cost_functions(
+    model,
+    num_iterations_per_cost_func,
+    users,
+    times_of_day,
+    actions,
+    cost_functions,
+    preprocess=feature_interaction,
+)
+plot_ctr(total_iterations, ctr)
+```
+
+
+    
+![png](08_neural_bandit_files/08_neural_bandit_30_0.png)
     
 

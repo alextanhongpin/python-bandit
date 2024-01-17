@@ -723,9 +723,9 @@ for i, item in df.iterrows():
         action = np.random.choice(actions)
     else:
         rewards = model.predict([preprocess(X_i, action) for action in actions])
-        # Prevents -tive value.
+        action = actions[np.argmax(rewards)]
         p = softmax(rewards, tau=0.2)
-        action = np.random.choice(actions, p=p)
+        # action = np.random.choice(actions, p=p)
         last_n_probabilities[i % n] = p
 
     if action == "eat":
@@ -752,7 +752,7 @@ plt.plot(range(n), avg_rewards)
 
 
 
-    [<matplotlib.lines.Line2D at 0x11cfb7700>]
+    [<matplotlib.lines.Line2D at 0x121c1c850>]
 
 
 
@@ -770,7 +770,7 @@ total_reward
 
 
 
-    8011
+    8086
 
 
 
@@ -782,7 +782,7 @@ choices
 
 
 
-    defaultdict(int, {'throw_p': 3859, 'eat_e': 4152, 'eat_p': 57, 'throw_e': 56})
+    defaultdict(int, {'throw_p': 3896, 'eat_e': 4190, 'eat_p': 20, 'throw_e': 18})
 
 
 
@@ -824,16 +824,16 @@ list(zip(last_n_actions[-10:], last_n_probabilities[-10:]))
 
 
 
-    [('throw_p', array([0.00302732, 0.99697268])),
-     ('throw_p', array([0.00389586, 0.99610414])),
-     ('throw_p', array([0.00178094, 0.99821906])),
-     ('throw_p', array([0.00312058, 0.99687942])),
-     ('eat_e', array([0.99575166, 0.00424834])),
-     ('throw_p', array([0.01868132, 0.98131868])),
-     ('eat_e', array([0.99269333, 0.00730667])),
-     ('throw_p', array([8.50716338e-04, 9.99149284e-01])),
-     ('throw_p', array([0.00206233, 0.99793767])),
-     ('eat_e', array([0.9894694, 0.0105306]))]
+    [('throw_p', array([0.04190506, 0.95809494])),
+     ('throw_p', array([0.0294244, 0.9705756])),
+     ('throw_p', array([0.02187761, 0.97812239])),
+     ('throw_p', array([0.04606314, 0.95393686])),
+     ('eat_e', array([0.96843428, 0.03156572])),
+     ('throw_p', array([0.1371993, 0.8628007])),
+     ('eat_e', array([0.93443274, 0.06556726])),
+     ('throw_p', array([0.01341728, 0.98658272])),
+     ('throw_p', array([0.02796642, 0.97203358])),
+     ('eat_e', array([0.92092305, 0.07907695]))]
 
 
 
