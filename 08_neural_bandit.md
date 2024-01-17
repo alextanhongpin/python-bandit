@@ -117,16 +117,13 @@ feature_interaction("Tom", "morning", "politics")
 
 
 ```python
-def sample_custom_pmf(pmf):
-    total = sum(pmf)
-    scale = 1 / total
-    pmf = [x * scale for x in pmf]
-    draw = random.random()
-    sum_prob = 0.0
-    for index, prob in enumerate(pmf):
-        sum_prob += prob
-        if sum_prob > draw:
-            return index, prob
+import numpy as np
+
+
+def softmax(lst, tau=1.0):
+    lst = np.array(lst) / tau
+    exps = np.exp(lst)
+    return exps / np.sum(exps)
 ```
 
 
@@ -148,9 +145,12 @@ model.predict([one_hot_encode("Tom", "morning", "politics")])
 
 ```python
 # Sampling best reward for the action taken.
-pmf = model.predict([one_hot_encode("Tom", "morning", action) for action in actions])
-action, prob = sample_custom_pmf(pmf)
-pmf, action, prob
+rewards = model.predict(
+    [one_hot_encode("Tom", "morning", action) for action in actions]
+)
+p = softmax(rewards)
+action = np.random.choice(actions, p=p)
+rewards, p, action
 ```
 
 
@@ -158,8 +158,65 @@ pmf, action, prob
 
     (array([ 0.20727216,  0.11697445,  0.33291172,  0.24473987,  0.35555384,
              0.13795523, -0.00638099]),
-     1,
-     0.08421327220560895)
+     array([0.14313913, 0.13078037, 0.16230165, 0.14860396, 0.16601842,
+            0.13355323, 0.11560323]),
+     'camping')
+
+
+
+
+```python
+model = MLPRegressor(activation="relu", random_state=42)
+model.partial_fit([feature_interaction("Tom", "morning", "politics")], [1])
+model.predict([feature_interaction("Tom", "morning", "politics")])
+```
+
+
+
+
+    array([0.30681819])
+
+
+
+
+```python
+# Sampling best reward for the action taken.
+rewards = model.predict(
+    [feature_interaction("Tom", "morning", action) for action in actions]
+)
+p = softmax(rewards)
+action = np.random.choice(actions, p=p)
+rewards, p, action
+```
+
+
+
+
+    (array([0.30681819, 0.82605623, 0.57201208, 0.39640068, 0.28572226,
+            0.5167437 , 0.44741572]),
+     array([0.11845786, 0.19909764, 0.15443159, 0.12955945, 0.11598506,
+            0.14612798, 0.13634042]),
+     'finance')
+
+
+
+
+```python
+p = softmax(rewards, tau=0.2)
+action = np.random.choice(actions, p=p)
+rewards, p, softmax(rewards), action
+```
+
+
+
+
+    (array([0.30681819, 0.82605623, 0.57201208, 0.39640068, 0.28572226,
+            0.5167437 , 0.44741572]),
+     array([0.03918545, 0.5255765 , 0.14756592, 0.06132687, 0.0352627 ,
+            0.11193665, 0.07914592]),
+     array([0.11845786, 0.19909764, 0.15443159, 0.12955945, 0.11598506,
+            0.14612798, 0.13634042]),
+     'sports')
 
 
 
@@ -174,14 +231,14 @@ def choose_time_of_day(times_of_day):
 
 
 def get_action(model, context, actions, preprocess):
-    pmf = model.predict(
+    rewards = model.predict(
         [
             preprocess(context["user"], context["time_of_day"], action)
             for action in actions
         ]
     )
-    chosen_action_index, prob = sample_custom_pmf(pmf)
-    return actions[chosen_action_index], prob
+    action = np.random.choice(actions, p=softmax(rewards, tau=0.2))
+    return action
 ```
 
 
@@ -207,7 +264,7 @@ def run_simulation(
 
         # 3. Pass context to vw to get an action
         context = {"user": user, "time_of_day": time_of_day}
-        action, prob = get_action(model, context, actions, preprocess)
+        action = get_action(model, context, actions, preprocess)
 
         # 4. Get cost of the action we chose
         cost = cost_function(context, action)
@@ -236,7 +293,7 @@ def plot_ctr(num_iterations, ctr):
 ```python
 num_iterations = 5000
 # Need to fit at least once.
-model = MLPRegressor(activation="relu", random_state=42)
+model = MLPRegressor(random_state=42)
 model.partial_fit([one_hot_encode("Tom", "morning", "politics")], [1])
 ctr = run_simulation(model, num_iterations, users, times_of_day, actions, get_cost)
 old_ctr = ctr
@@ -245,7 +302,7 @@ plot_ctr(num_iterations, ctr)
 
 
     
-![png](08_neural_bandit_files/08_neural_bandit_15_0.png)
+![png](08_neural_bandit_files/08_neural_bandit_18_0.png)
     
 
 
@@ -273,41 +330,39 @@ plt.legend(["one_hot_encode", "feature_interaction"])
 
 
 
-    <matplotlib.legend.Legend at 0x1197b49a0>
+    <matplotlib.legend.Legend at 0x12005abf0>
 
 
 
 
     
-![png](08_neural_bandit_files/08_neural_bandit_16_1.png)
+![png](08_neural_bandit_files/08_neural_bandit_19_1.png)
     
 
 
 
 ```python
 context = {"user": "Anna", "time_of_day": "morning"}
-action, prob = get_action(model, context, actions, feature_interaction)
-action, prob
+get_action(model, context, actions, feature_interaction)
 ```
 
 
 
 
-    ('sports', 1.1332483854814464)
+    'sports'
 
 
 
 
 ```python
 context = {"user": "Anna", "time_of_day": "afternoon"}
-action, prob = get_action(model, context, actions, feature_interaction)
-action, prob
+get_action(model, context, actions, feature_interaction)
 ```
 
 
 
 
-    ('politics', 0.9507944715662973)
+    'politics'
 
 
 
@@ -355,7 +410,7 @@ def run_simulation_multiple_cost_functions(
             context = {"user": user, "time_of_day": time_of_day}
 
             # 3. Use the get_action function we defined earlier
-            action, prob = get_action(model, context, actions, preprocess)
+            action = get_action(model, context, actions, preprocess)
 
             # 4. Get cost of the action we chose
             cost = cost_function(context, action)
@@ -375,6 +430,10 @@ def run_simulation_multiple_cost_functions(
 
 ```python
 model = MLPRegressor(activation="relu", random_state=42)
+cost_functions = [get_cost, get_cost_new1]
+num_iterations_per_cost_func = 5000
+total_iterations = num_iterations_per_cost_func * len(cost_functions)
+
 # Need to fit at least one data before using.\n",
 model.partial_fit([feature_interaction("Tom", "morning", "politics")], [1])
 ctr = run_simulation_multiple_cost_functions(
@@ -391,6 +450,6 @@ plot_ctr(total_iterations, ctr)
 
 
     
-![png](08_neural_bandit_files/08_neural_bandit_21_0.png)
+![png](08_neural_bandit_files/08_neural_bandit_24_0.png)
     
 

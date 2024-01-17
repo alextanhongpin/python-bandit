@@ -618,79 +618,125 @@ from sklearn.neural_network import MLPRegressor
 
 
 ```python
-hasher = FeatureHasher(n_features=100, input_type="string")
+# We set alternate sign to false because we want positive numbers only.
+# This is important for the training to avoid -tive predictions.
+hasher = FeatureHasher(n_features=100, input_type="string", alternate_sign=True)
 
 
 def preprocess(state, action):
-    features = [f"{key}:{value}:{action}" for key, value in state.items()]
+    features = [f"{key}:{value}^{action}" for key, value in state.items()]
+    # features = [f"{key}:{value}" for key, value in state.items()]
+    # features += [action]
+    # print(features)
     return hasher.transform([features]).toarray()[0]
 ```
 
 
 ```python
 X_i = df.iloc[0, :-1]
-preprocess(X_i, "eat")
+y_i = df.iloc[0, -1:]
+preprocess(X_i, "eat"), preprocess(X_i, "throw"), y_i
 ```
 
 
 
 
-    array([ 0.,  0.,  0.,  0.,  0., -1.,  0.,  0.,  0.,  1.,  0.,  0.,  0.,
-            0.,  0.,  0.,  0.,  0.,  0.,  0.,  0., -1.,  0.,  0.,  0.,  0.,
-            0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  1.,
-            0., -1.,  0.,  0.,  0., -1.,  0., -1.,  1.,  0.,  0.,  0.,  0.,
-            1.,  0., -1.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0., -1.,
-            1.,  0.,  0.,  0.,  0., -1.,  1.,  0.,  1., -1.,  0.,  0.,  0.,
-            0.,  0.,  0.,  0.,  0.,  0.,  0.,  1.,  0.,  0., -1.,  0.,  0.,
-            0., -1.,  0.,  0.,  0.,  1.,  0.,  0.,  0.])
+    (array([ 1.,  0.,  0., -1., -2.,  0.,  0.,  0., -1.,  0.,  0.,  0.,  0.,
+             0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  1.,
+             0.,  0.,  0.,  0.,  0.,  0.,  0.,  0., -1.,  0., -1.,  0.,  0.,
+            -1.,  0.,  0.,  0.,  0.,  1.,  0.,  0.,  0.,  0.,  0.,  0.,  1.,
+             0.,  0.,  0.,  0.,  0.,  2.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,
+             0.,  0.,  0.,  0.,  0.,  0., -1.,  0.,  0.,  0.,  0.,  0.,  0.,
+            -1.,  0.,  0.,  0.,  0., -1.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,
+             0.,  0.,  1., -1.,  0.,  0.,  0.,  0.,  0.]),
+     array([ 0.,  0.,  0.,  1.,  1.,  1.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,
+             0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,
+             0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,
+             0., -1.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  1.,  1.,  0.,
+             0.,  1.,  0.,  0.,  0.,  0., -1.,  0.,  1.,  0.,  0.,  1.,  0.,
+             0.,  0.,  0.,  0.,  0.,  0., -1.,  0., -1.,  0.,  0.,  1.,  0.,
+             0.,  0.,  0.,  0.,  0., -1.,  0.,  2.,  0.,  0.,  0., -2.,  0.,
+             0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.]),
+     poisonous    p
+     Name: 0, dtype: object)
 
 
+
+The MLPRegressor in Scikit-learn does not have a built-in way to restrict the output to non-negative values. However, there are a few workarounds you can use:
+
+1. **Post-processing**: After getting the predictions, you can simply set all negative values to zero. This is the simplest method, but it might not be the best solution if a large number of your predictions are negative.
+
+```python
+predictions = model.predict(X)
+predictions = np.maximum(predictions, 0)
+```
+
+2. **Log transformation**: If your target variable is always positive, you can take the log of the target variable during training, and then exponentiate the predictions. This will ensure that your predictions are always positive.
+
+```python
+# During training
+model.fit(X, np.log1p(y))
+
+# During prediction
+predictions = np.expm1(model.predict(X))
+```
+
+Note: `np.log1p(y)` is used instead of `np.log(y)` to handle the case where `y` is 0, and `np.expm1(predictions)` is the inverse of `np.log1p(y)`.
+
+Remember that these are just workarounds. If your model is predicting a lot of negative values and it shouldn't be, it might be a sign that your model isn't well-suited to your data.
 
 
 ```python
-import random
-
-actions = ["eat", "throw"]
-
-
-def sample_pmf(pmf):
-    total = sum(pmf)
-    scale = 1 / total
-    pmf = [v * scale for v in pmf]
-    proba = random.random()
-    total = 0
-    for i, v in enumerate(pmf):
-        total += v
-        if total > proba:
-            return i, total
+def softmax(lst, tau=1.0):
+    lst = np.array(lst) / tau
+    """The softmax function is often used in machine learning to convert a list of real numbers into a list of probabilities that add up to 1.
+    Note: The softmax function can be unstable if the numbers in the list are very large (due to the exponential function). In practice, a common technique is to subtract the maximum value in the list from all the values to stabilize the computation.
+    """
+    exps = np.exp(lst)
+    return exps / np.sum(exps)
 ```
 
 
 ```python
 from collections import defaultdict
 
+import numpy as np
+
+actions = ["eat", "throw"]
 total_reward = 0
 avg_rewards = []
 choices = defaultdict(int)
 
-model = MLPRegressor()
+n = 100
+last_n_actions = [""] * n
+last_n_probabilities = [[0, 0] for i in range(n)]
+POISONOUS = "p"
+
+model = MLPRegressor(
+    random_state=42,
+)
 
 for i, item in df.iterrows():
     X_i, y_i = item.iloc[:-1], item.iloc[-1]
 
     if i == 0:
-        action_index = random.randint(0, 1)
+        action = np.random.choice(actions)
     else:
-        pmf = model.predict([list(preprocess(X_i, action)) for action in actions])
-        action_index, prob = sample_pmf(pmf)
-    action = actions[action_index]
+        rewards = model.predict([preprocess(X_i, action) for action in actions])
+        # Prevents -tive value.
+        p = softmax(rewards, tau=0.2)
+        action = np.random.choice(actions, p=p)
+        last_n_probabilities[i % n] = p
+
     if action == "eat":
-        reward = 0 if y_i == "p" else 1
-        model.partial_fit([preprocess(X_i, action)], [reward])
+        reward = 0 if y_i == POISONOUS else 1
     else:
-        reward = 1 if y_i == "p" else 0
-        model.partial_fit([preprocess(X_i, action)], [reward])
+        reward = 1 if y_i == POISONOUS else 0
+
+    model.partial_fit([preprocess(X_i, action)], [reward])
+
     choices[action + "_" + y_i] += 1
+    last_n_actions[i % n] = action + "_" + y_i
     total_reward += reward
     avg_rewards.append(total_reward / (i + 1))
 ```
@@ -706,13 +752,13 @@ plt.plot(range(n), avg_rewards)
 
 
 
-    [<matplotlib.lines.Line2D at 0x123e69ed0>]
+    [<matplotlib.lines.Line2D at 0x11cfb7700>]
 
 
 
 
     
-![png](09_mushroom_uci_files/09_mushroom_uci_13_1.png)
+![png](09_mushroom_uci_files/09_mushroom_uci_14_1.png)
     
 
 
@@ -724,7 +770,7 @@ total_reward
 
 
 
-    7935
+    8011
 
 
 
@@ -736,21 +782,67 @@ choices
 
 
 
-    defaultdict(int, {'eat_p': 78, 'throw_e': 111, 'eat_e': 4097, 'throw_p': 3838})
+    defaultdict(int, {'throw_p': 3859, 'eat_e': 4152, 'eat_p': 57, 'throw_e': 56})
 
 
 
 
 ```python
-df["poisonous"].value_counts()
+df["poisonous"].value_counts(), df.shape
 ```
 
 
 
 
-    poisonous
-    e    4208
-    p    3916
-    Name: count, dtype: int64
+    (poisonous
+     e    4208
+     p    3916
+     Name: count, dtype: int64,
+     (8124, 23))
 
 
+
+
+```python
+from collections import Counter
+
+Counter(last_n_actions)
+```
+
+
+
+
+    Counter({'eat_e': 54, 'throw_p': 46})
+
+
+
+
+```python
+list(zip(last_n_actions[-10:], last_n_probabilities[-10:]))
+```
+
+
+
+
+    [('throw_p', array([0.00302732, 0.99697268])),
+     ('throw_p', array([0.00389586, 0.99610414])),
+     ('throw_p', array([0.00178094, 0.99821906])),
+     ('throw_p', array([0.00312058, 0.99687942])),
+     ('eat_e', array([0.99575166, 0.00424834])),
+     ('throw_p', array([0.01868132, 0.98131868])),
+     ('eat_e', array([0.99269333, 0.00730667])),
+     ('throw_p', array([8.50716338e-04, 9.99149284e-01])),
+     ('throw_p', array([0.00206233, 0.99793767])),
+     ('eat_e', array([0.9894694, 0.0105306]))]
+
+
+
+
+```python
+
+```
+
+
+```python
+
+```
