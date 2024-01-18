@@ -612,6 +612,25 @@ df.head()
 
 
 ```python
+columns = df.columns
+columns
+```
+
+
+
+
+    Index(['cap-shape', 'cap-surface', 'cap-color', 'bruises', 'odor',
+           'gill-attachment', 'gill-spacing', 'gill-size', 'gill-color',
+           'stalk-shape', 'stalk-root', 'stalk-surface-above-ring',
+           'stalk-surface-below-ring', 'stalk-color-above-ring',
+           'stalk-color-below-ring', 'veil-type', 'veil-color', 'ring-number',
+           'ring-type', 'spore-print-color', 'population', 'habitat', 'poisonous'],
+          dtype='object')
+
+
+
+
+```python
 from sklearn.feature_extraction import FeatureHasher
 from sklearn.neural_network import MLPRegressor
 ```
@@ -701,6 +720,9 @@ def softmax(lst, tau=1.0):
 from collections import defaultdict
 
 import numpy as np
+from tqdm.autonotebook import tqdm
+
+tqdm.pandas()
 
 actions = ["eat", "throw"]
 total_reward = 0
@@ -711,12 +733,12 @@ n = 100
 last_n_actions = [""] * n
 last_n_probabilities = [[0, 0] for i in range(n)]
 POISONOUS = "p"
-
+policies = ["greedy", "softmax"]
 model = MLPRegressor(
     random_state=42,
 )
 
-for i, item in df.iterrows():
+for i, item in tqdm(df[columns].iterrows(), total=df.shape[0], desc="Reading DF"):
     X_i, y_i = item.iloc[:-1], item.iloc[-1]
 
     if i == 0:
@@ -724,22 +746,25 @@ for i, item in df.iterrows():
     else:
         rewards = model.predict([preprocess(X_i, action) for action in actions])
         action = actions[np.argmax(rewards)]
+
         p = softmax(rewards, tau=0.2)
         # action = np.random.choice(actions, p=p)
         last_n_probabilities[i % n] = p
 
-    if action == "eat":
-        reward = 0 if y_i == POISONOUS else 1
-    else:
-        reward = 1 if y_i == POISONOUS else 0
+    reward = int(
+        (action == "eat" and y_i != POISONOUS) or (action != "eat" and y_i == POISONOUS)
+    )
 
     model.partial_fit([preprocess(X_i, action)], [reward])
-
     choices[action + "_" + y_i] += 1
     last_n_actions[i % n] = action + "_" + y_i
     total_reward += reward
     avg_rewards.append(total_reward / (i + 1))
 ```
+
+
+    Reading DF:   0%|          | 0/8124 [00:00<?, ?it/s]
+
 
 
 ```python
@@ -752,13 +777,13 @@ plt.plot(range(n), avg_rewards)
 
 
 
-    [<matplotlib.lines.Line2D at 0x121c1c850>]
+    [<matplotlib.lines.Line2D at 0x125a3f010>]
 
 
 
 
     
-![png](09_mushroom_uci_files/09_mushroom_uci_14_1.png)
+![png](09_mushroom_uci_files/09_mushroom_uci_15_1.png)
     
 
 
@@ -839,8 +864,77 @@ list(zip(last_n_actions[-10:], last_n_probabilities[-10:]))
 
 
 ```python
+import seaborn as sns
 
+sns.set_theme()
 ```
+
+
+```python
+import numpy as np
+from tqdm.autonotebook import tqdm
+
+tqdm.pandas()
+
+POISONOUS = "p"
+actions = ["eat", "throw"]
+policies = ["greedy", "softmax_0.5", "softmax_0.2"]
+
+for policy in tqdm(policies):
+    total_reward = 0
+    avg_rewards = []
+
+    model = MLPRegressor(
+        random_state=42,
+    )
+
+    for i, item in tqdm(df[columns].iterrows(), total=df.shape[0]):
+        X_i, y_i = item.iloc[:-1], item.iloc[-1]
+
+        action = None
+
+        if i == 0:
+            action = np.random.choice(actions)
+        else:
+            rewards = model.predict([preprocess(X_i, action) for action in actions])
+            match policy:
+                case "greedy":
+                    action = actions[np.argmax(rewards)]
+                case "softmax_0.5":
+                    p = softmax(rewards, tau=0.5)
+                    action = np.random.choice(actions, p=p)
+                case "softmax_0.2":
+                    p = softmax(rewards, tau=0.2)
+                    action = np.random.choice(actions, p=p)
+
+        reward = int(
+            (action == "eat" and y_i != POISONOUS)
+            or (action != "eat" and y_i == POISONOUS)
+        )
+
+        model.partial_fit([preprocess(X_i, action)], [reward])
+        total_reward += reward
+        avg_rewards.append(total_reward / (i + 1))
+    df[policy] = avg_rewards
+```
+
+
+```python
+df[policies].plot(xlabel="Trials", ylabel="Avg. Rewards")
+```
+
+
+
+
+    <Axes: xlabel='Trials', ylabel='Avg. Rewards'>
+
+
+
+
+    
+![png](09_mushroom_uci_files/09_mushroom_uci_23_1.png)
+    
+
 
 
 ```python

@@ -20,6 +20,8 @@ jupyterlab-code-formatter = "^2.2.1"
 jupytext = "^1.16.0"
 scikit-learn = "^1.3.2"
 ucimlrepo = "^0.0.3"
+tqdm = "^4.66.1"
+seaborn = "^0.13.1"
 
 
 [build-system]
