@@ -19,11 +19,11 @@ setup-formatter:
 	poetry add black isort
 	jupyter nbextension enable --py widgetsnbextension
 
-convert:
+convert_all:
 	# jupytext doesn't preserve image.
 	#@find . -name "*.ipynb" ! -path '*/.*' -exec poetry run jupytext --to md {} \;
 	@find . -name "*.ipynb" ! -path '*/.*' -exec poetry run jupyter nbconvert --to markdown --output-dir=docs {} \;
 
 # Similar to convert, but only convert the diff files.
-convert_diff:
-	@poetry run jupyter nbconvert --to markdown --output-dir=docs $(shell git diff --name-only | grep .ipynb)
+convert:
+	@poetry run jupyter nbconvert --to markdown --output-dir=docs $(shell git diff HEAD --name-only | grep .ipynb)

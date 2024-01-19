@@ -33,7 +33,7 @@ importlib.reload(bandit.neural_bandit)
 ```python
 class ContextualEpsilonGreedyNeuralBandit(EpsilonGreedyNeuralBandit):
     def __init__(self, actions, epsilon=1.0, *args, **kwargs):
-        super().__init__(epsilon, *args, **kwargs)
+        super().__init__(epsilon, random_state=42, *args, **kwargs)
         self.actions = actions
 
     def preprocess(self, state: dict[str, str], action):
@@ -45,7 +45,7 @@ class ContextualEpsilonGreedyNeuralBandit(EpsilonGreedyNeuralBandit):
 
 class ContextualEpsilonGreedyNeuralPerArmBandit(EpsilonGreedyNeuralPerArmBandit):
     def __init__(self, actions, epsilon=1.0, *args, **kwargs):
-        super().__init__(len(actions), epsilon, *args, **kwargs)
+        super().__init__(len(actions), epsilon, random_state=42, *args, **kwargs)
         self.actions = actions
 
     def fit(self, state: dict[str, str], action: str, reward: float):
@@ -61,7 +61,7 @@ class ContextualEpsilonGreedyNeuralPerArmBandit(EpsilonGreedyNeuralPerArmBandit)
 
 class ContextualSoftmaxNeuralBandit(SoftmaxNeuralBandit):
     def __init__(self, actions, temperature=1.0, *args, **kwargs):
-        super().__init__(temperature, *args, **kwargs)
+        super().__init__(temperature, random_state=42, *args, **kwargs)
         self.actions = actions
 
     def preprocess(self, state, action):
@@ -73,7 +73,7 @@ class ContextualSoftmaxNeuralBandit(SoftmaxNeuralBandit):
 
 class ContextualSoftmaxNeuralPerArmBandit(SoftmaxNeuralPerArmBandit):
     def __init__(self, actions, temperature=1.0, *args, **kwargs):
-        super().__init__(len(actions), temperature, *args, **kwargs)
+        super().__init__(len(actions), temperature, random_state=42, *args, **kwargs)
         self.actions = actions
 
     def fit(self, state: dict[str, str], action: str, reward: float):
@@ -107,7 +107,7 @@ for i, ctx in env.random_context(N):
 df[model.__name__] = avg_rewards
 ```
 
-    100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████| 5000/5000 [00:14<00:00, 343.18it/s]
+    100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████| 5000/5000 [00:14<00:00, 339.74it/s]
 
 
 
@@ -124,7 +124,7 @@ for i, ctx in env.random_context(N):
 df[model.__name__] = avg_rewards
 ```
 
-    100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████| 5000/5000 [00:11<00:00, 432.15it/s]
+    100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████| 5000/5000 [00:12<00:00, 390.41it/s]
 
 
 
@@ -141,7 +141,7 @@ for i, ctx in env.random_context(N):
 df[model.__name__] = avg_rewards
 ```
 
-    100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████| 5000/5000 [00:12<00:00, 412.93it/s]
+    100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████| 5000/5000 [00:12<00:00, 394.69it/s]
 
 
 
@@ -158,7 +158,7 @@ for i, ctx in env.random_context(N):
 df[model.__name__] = avg_rewards
 ```
 
-    100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████| 5000/5000 [00:12<00:00, 411.55it/s]
+    100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████| 5000/5000 [00:14<00:00, 350.63it/s]
 
 
 
@@ -175,7 +175,7 @@ for i, ctx in env.random_context(N):
 df[model.__name__] = avg_rewards
 ```
 
-    100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████| 5000/5000 [00:22<00:00, 220.49it/s]
+    100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████| 5000/5000 [00:20<00:00, 242.60it/s]
 
 
 
@@ -192,7 +192,7 @@ for i, ctx in env.random_context(N):
 df[model.__name__] = avg_rewards
 ```
 
-    100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████| 5000/5000 [00:26<00:00, 187.12it/s]
+    100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████| 5000/5000 [00:22<00:00, 223.56it/s]
 
 
 
@@ -209,7 +209,7 @@ for i, ctx in env.random_context(N):
 df[model.__name__] = avg_rewards
 ```
 
-    100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████| 5000/5000 [00:19<00:00, 252.80it/s]
+    100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████| 5000/5000 [00:27<00:00, 180.71it/s]
 
 
 
@@ -226,135 +226,167 @@ for i, ctx in env.random_context(N):
 df[model.__name__] = avg_rewards
 ```
 
-    100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████| 5000/5000 [00:19<00:00, 260.27it/s]
+    100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████| 5000/5000 [00:22<00:00, 222.32it/s]
 
 
 
 ```python
-df.plot(figsize=(12, 8))
+import numpy as np
+
+style = ["-", "--"]
+
+
+def plot(*patterns):
+    cols = []
+    for col in df.columns:
+        for pat in patterns:
+            if pat not in col:
+                break
+        else:
+            cols.append(col)
+    repeat = (len(cols) + 1) // 2
+    df[cols].plot(figsize=(12, 8), style=style * repeat)
 ```
-
-
-
-
-    <Axes: >
-
-
-
-
-    
-![png](12_modular_files/12_modular_12_1.png)
-    
-
 
 
 ```python
-df[[col for col in df.columns if "Softmax" in col]].plot(figsize=(12, 8))
+plot("Softmax")
 ```
 
 
-
-
-    <Axes: >
-
-
-
-
     
-![png](12_modular_files/12_modular_13_1.png)
+![png](12_modular_files/12_modular_13_0.png)
     
 
 
 
 ```python
-df[[col for col in df.columns if "SoftmaxNeuralBandit" in col]].plot(figsize=(12, 8))
+plot("SoftmaxNeuralBandit")
 ```
 
 
-
-
-    <Axes: >
-
-
-
-
     
-![png](12_modular_files/12_modular_14_1.png)
+![png](12_modular_files/12_modular_14_0.png)
     
 
 
 
 ```python
-df[[col for col in df.columns if "SoftmaxNeuralPerArmBandit" in col]].plot(figsize=(12, 8))
+plot("SoftmaxNeuralPerArmBandit")
 ```
 
 
-
-
-    <Axes: >
-
-
-
-
     
-![png](12_modular_files/12_modular_15_1.png)
+![png](12_modular_files/12_modular_15_0.png)
     
 
 
 
 ```python
-df[[col for col in df.columns if ("Greedy" in col and "0.9" in col)]].plot(
-    figsize=(12, 8)
-)
+plot("Softmax", "0.2")
 ```
 
 
-
-
-    <Axes: >
-
-
-
-
     
-![png](12_modular_files/12_modular_16_1.png)
+![png](12_modular_files/12_modular_16_0.png)
     
 
 
 
 ```python
-df[[col for col in df.columns if ("Greedy" in col and "1.0" in col)]].plot(
-    figsize=(12, 8)
-)
+plot("Softmax", "0.5")
 ```
 
 
-
-
-    <Axes: >
-
-
-
-
     
-![png](12_modular_files/12_modular_17_1.png)
+![png](12_modular_files/12_modular_17_0.png)
     
 
 
 
 ```python
-df[[col for col in df.columns if ("GreedyNeuralPer" in col)]].plot(figsize=(12, 8))
+plot("Greedy")
 ```
 
 
+    
+![png](12_modular_files/12_modular_18_0.png)
+    
 
 
-    <Axes: >
 
-
+```python
+plot("GreedyNeuralBandit")
+```
 
 
     
-![png](12_modular_files/12_modular_18_1.png)
+![png](12_modular_files/12_modular_19_0.png)
+    
+
+
+
+```python
+plot("GreedyNeuralPerArmBandit")
+```
+
+
+    
+![png](12_modular_files/12_modular_20_0.png)
+    
+
+
+
+```python
+plot("Greedy", "0.9")
+```
+
+
+    
+![png](12_modular_files/12_modular_21_0.png)
+    
+
+
+
+```python
+plot("Greedy", "1.0")
+```
+
+
+    
+![png](12_modular_files/12_modular_22_0.png)
+    
+
+
+
+```python
+plot("GreedyNeural", "1.0")
+```
+
+
+    
+![png](12_modular_files/12_modular_23_0.png)
+    
+
+
+
+```python
+plot("NeuralBandit")
+```
+
+
+    
+![png](12_modular_files/12_modular_24_0.png)
+    
+
+
+
+```python
+plot("NeuralPerArmBandit")
+```
+
+
+    
+![png](12_modular_files/12_modular_25_0.png)
     
 
