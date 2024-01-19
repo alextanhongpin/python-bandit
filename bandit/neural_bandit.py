@@ -16,7 +16,7 @@ class NeuralBandit:
     def predict(self, state: dict[str, str], actions: list[str]) -> str:
         try:
             rewards = self.model.predict(
-                [(context := self.preprocess(state, action)) for action in actions]
+                [self.preprocess(state, action) for action in actions]
             )
             action = self.policy(rewards)
             return actions[action]

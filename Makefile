@@ -23,3 +23,7 @@ convert:
 	# jupytext doesn't preserve image.
 	#@find . -name "*.ipynb" ! -path '*/.*' -exec poetry run jupytext --to md {} \;
 	@find . -name "*.ipynb" ! -path '*/.*' -exec poetry run jupyter nbconvert --to markdown --output-dir=docs {} \;
+
+# Similar to convert, but only convert the diff files.
+convert_diff:
+	@poetry run jupyter nbconvert --to markdown --output-dir=docs $(shell git diff --name-only | grep .ipynb)
