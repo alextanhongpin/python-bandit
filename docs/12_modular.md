@@ -98,7 +98,8 @@ df = pd.DataFrame(index=range(N))
 model = ContextualEpsilonGreedyNeuralBandit(env.actions, epsilon=1.0)
 total_rewards = 0
 avg_rewards = []
-for i, ctx in env.random_context(N):
+
+for i, ctx in env.random_context(N, random_state=42):
     action = model.predict(ctx)
     reward = env.get_cost(ctx, action)
     model.fit(ctx, action, reward)
@@ -107,7 +108,7 @@ for i, ctx in env.random_context(N):
 df[model.__name__] = avg_rewards
 ```
 
-    100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████| 5000/5000 [00:14<00:00, 339.74it/s]
+    100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████| 5000/5000 [00:24<00:00, 201.45it/s]
 
 
 
@@ -115,7 +116,8 @@ df[model.__name__] = avg_rewards
 model = ContextualEpsilonGreedyNeuralBandit(env.actions, epsilon=0.9)
 total_rewards = 0
 avg_rewards = []
-for i, ctx in env.random_context(N):
+
+for i, ctx in env.random_context(N, random_state=42):
     action = model.predict(ctx)
     reward = env.get_cost(ctx, action)
     model.fit(ctx, action, reward)
@@ -124,7 +126,7 @@ for i, ctx in env.random_context(N):
 df[model.__name__] = avg_rewards
 ```
 
-    100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████| 5000/5000 [00:12<00:00, 390.41it/s]
+    100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████| 5000/5000 [00:12<00:00, 408.24it/s]
 
 
 
@@ -132,7 +134,8 @@ df[model.__name__] = avg_rewards
 model = ContextualSoftmaxNeuralBandit(env.actions, temperature=0.2)
 total_rewards = 0
 avg_rewards = []
-for i, ctx in env.random_context(N):
+
+for i, ctx in env.random_context(N, random_state=42):
     action = model.predict(ctx)
     reward = env.get_cost(ctx, action)
     model.fit(ctx, action, reward)
@@ -141,7 +144,7 @@ for i, ctx in env.random_context(N):
 df[model.__name__] = avg_rewards
 ```
 
-    100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████| 5000/5000 [00:12<00:00, 394.69it/s]
+    100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████| 5000/5000 [00:12<00:00, 390.49it/s]
 
 
 
@@ -149,7 +152,8 @@ df[model.__name__] = avg_rewards
 model = ContextualSoftmaxNeuralBandit(env.actions, temperature=0.5)
 total_rewards = 0
 avg_rewards = []
-for i, ctx in env.random_context(N):
+
+for i, ctx in env.random_context(N, random_state=42):
     action = model.predict(ctx)
     reward = env.get_cost(ctx, action)
     model.fit(ctx, action, reward)
@@ -158,7 +162,7 @@ for i, ctx in env.random_context(N):
 df[model.__name__] = avg_rewards
 ```
 
-    100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████| 5000/5000 [00:14<00:00, 350.63it/s]
+    100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████| 5000/5000 [00:14<00:00, 341.94it/s]
 
 
 
@@ -166,7 +170,8 @@ df[model.__name__] = avg_rewards
 model = ContextualEpsilonGreedyNeuralPerArmBandit(env.actions, epsilon=1.0)
 total_rewards = 0
 avg_rewards = []
-for i, ctx in env.random_context(N):
+
+for i, ctx in env.random_context(N, random_state=42):
     action = model.predict(ctx)
     reward = env.get_cost(ctx, action)
     model.fit(ctx, action, reward)
@@ -175,7 +180,7 @@ for i, ctx in env.random_context(N):
 df[model.__name__] = avg_rewards
 ```
 
-    100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████| 5000/5000 [00:20<00:00, 242.60it/s]
+    100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████| 5000/5000 [00:20<00:00, 242.53it/s]
 
 
 
@@ -183,7 +188,8 @@ df[model.__name__] = avg_rewards
 model = ContextualEpsilonGreedyNeuralPerArmBandit(env.actions, epsilon=0.9)
 total_rewards = 0
 avg_rewards = []
-for i, ctx in env.random_context(N):
+
+for i, ctx in env.random_context(N, random_state=42):
     action = model.predict(ctx)
     reward = env.get_cost(ctx, action)
     model.fit(ctx, action, reward)
@@ -192,7 +198,7 @@ for i, ctx in env.random_context(N):
 df[model.__name__] = avg_rewards
 ```
 
-    100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████| 5000/5000 [00:22<00:00, 223.56it/s]
+    100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████| 5000/5000 [00:21<00:00, 234.12it/s]
 
 
 
@@ -200,7 +206,8 @@ df[model.__name__] = avg_rewards
 model = ContextualSoftmaxNeuralPerArmBandit(env.actions, temperature=0.2)
 total_rewards = 0
 avg_rewards = []
-for i, ctx in env.random_context(N):
+
+for i, ctx in env.random_context(N, random_state=42):
     action = model.predict(ctx)
     reward = env.get_cost(ctx, action)
     model.fit(ctx, action, reward)
@@ -209,7 +216,7 @@ for i, ctx in env.random_context(N):
 df[model.__name__] = avg_rewards
 ```
 
-    100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████| 5000/5000 [00:27<00:00, 180.71it/s]
+    100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████| 5000/5000 [00:21<00:00, 233.96it/s]
 
 
 
@@ -217,7 +224,8 @@ df[model.__name__] = avg_rewards
 model = ContextualSoftmaxNeuralPerArmBandit(env.actions, temperature=0.5)
 total_rewards = 0
 avg_rewards = []
-for i, ctx in env.random_context(N):
+
+for i, ctx in env.random_context(N, random_state=42):
     action = model.predict(ctx)
     reward = env.get_cost(ctx, action)
     model.fit(ctx, action, reward)
@@ -226,7 +234,7 @@ for i, ctx in env.random_context(N):
 df[model.__name__] = avg_rewards
 ```
 
-    100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████| 5000/5000 [00:22<00:00, 222.32it/s]
+    100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████| 5000/5000 [00:20<00:00, 246.22it/s]
 
 
 

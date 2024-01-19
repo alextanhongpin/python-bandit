@@ -24,7 +24,9 @@ def get_cost(context, action):
             return USER_DISLIKED_ARTICLE
 
 
-def random_context(n):
+def random_context(n, random_state=None):
+    if random_state is not None:
+        random.seed(random_state)
     for i in tqdm(range(n)):
         yield (
             i,
