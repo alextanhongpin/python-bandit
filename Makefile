@@ -23,3 +23,4 @@ convert:
 	# jupytext doesn't preserve image.
 	#@find . -name "*.ipynb" ! -path '*/.*' -exec poetry run jupytext --to md {} \;
 	@find . -name "*.ipynb" ! -path '*/.*' -exec poetry run jupyter nbconvert --to markdown {} \;
+	@find . -name "*.md" ! -path "*/.*" ! -name "README.md" -exec mv {} docs/ \;
