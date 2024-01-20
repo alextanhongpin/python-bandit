@@ -25,6 +25,21 @@ def get_cost(context, action):
             return USER_DISLIKED_ARTICLE
 
 
+def get_cost_new1(context, action):
+    match (context["user"], context["time_of_day"], action):
+        case ("Tom", "morning", "politics"):
+            return USER_LIKED_ARTICLE
+        case ("Tom", "afternoon", "sports"):
+            return USER_LIKED_ARTICLE
+        case ("Anna", "morning", "sports"):
+            return USER_LIKED_ARTICLE
+        case ("Anna", "afternoon", "sports"):
+            return USER_LIKED_ARTICLE
+        case _:
+            return USER_DISLIKED_ARTICLE
+
+
+
 def random_context(n, random_state=None):
     if random_state is not None:
         random.seed(random_state)

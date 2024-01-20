@@ -3,6 +3,78 @@ from sklearn.exceptions import NotFittedError
 from sklearn.tree import DecisionTreeRegressor
 
 
+
+class TreeSamplingBandit:
+    def __init__(self, sample_size=100, *args, **kwargs):
+        self.model = DecisionTreeRegressor(*args, **kwargs)
+        self.action_history = None # np.array([None for _ in range(sample_size)], dtype=object)
+        self.rewards = np.full(sample_size, -10)
+        self.sample_size = sample_size
+        self.count = 0
+
+    def fit(self, state: dict[str, str], action: str, reward: float):
+        context = self.preprocess(state, action)
+        X = context
+        y = reward
+        n = self.count
+        if self.action_history is None:
+            self.action_history = np.zeros((self.sample_size, len(X)))
+        self.action_history[n%self.sample_size] = X
+        self.rewards[n%self.sample_size] = y
+        self.count += 1
+
+        indices = np.where(self.rewards != -10)
+        rewards = self.rewards[indices].ravel()
+        if len(np.unique(rewards)) < 2:
+            return
+        if n == 0 or n % self.sample_size != 0:
+            return
+        self.model.fit(self.action_history, self.rewards)
+
+    def predict(self, state: dict[str, str], actions: list[str]) -> str:
+        try:
+            rewards = self.model.predict(
+                [self.preprocess(state, action) for action in actions]
+            )
+            action = self.policy(rewards)
+            return actions[action]
+        except NotFittedError:
+            return np.random.choice(actions)
+
+    def policy(self, rewards: list[float]):
+        raise NotImplementedError("policy not implemented")
+
+    def preprocess(self, state: dict[str, str], action: str):
+        raise NotImplementedError("preprocess not implemented")
+
+
+class EpsilonGreedyTreeSamplingBandit(TreeSamplingBandit):
+    def __init__(self, epsilon=0.9, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Default to 0.9, which means 10% exploration, 90%
+        # exploitation.
+        self.epsilon = epsilon
+        self.__name__ = f"{self.__class__.__name__}_{epsilon}"
+
+    def policy(self, rewards: list[float]) -> int:
+        e = np.random.uniform(0, 1)
+        if e < self.epsilon:
+            return np.argmax(rewards)
+        else:
+            return np.random.choice(range(len(rewards)))
+
+
+class SoftmaxTreeSamplingBandit(TreeSamplingBandit):
+    def __init__(self, temperature=0.2, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.temperature = temperature
+        self.__name__ = f"{self.__class__.__name__}_{temperature}"
+
+    def policy(self, rewards: list[float]):
+        probabilities = softmax(rewards, temperature=self.temperature)
+        return np.random.choice(range(len(rewards)), p=probabilities)
+
+
 class TreeBandit:
     def __init__(self, *args, **kwargs):
         self.model = DecisionTreeRegressor(*args, **kwargs)
