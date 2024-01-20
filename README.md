@@ -50,3 +50,13 @@ weighted label sum = 0.000000
 average loss = n.a.
 total feature number = 0
 ```
+
+
+## References
+
+- https://gdmarmerola.github.io/ts-for-contextual-bandits/
+- https://renan-cunha.github.io/categories/contextual-bandits/
+- LinUCB: https://arxiv.org/pdf/1003.0146.pdf
+- The implementation from the paper above: https://github.com/kfoofw/bandit_simulations/tree/master
+- https://towardsdatascience.com/recommender-systems-using-linucb-a-contextual-multi-armed-bandit-approach-35a6f0eb6c4?gi=61d0618494e6
+- http://auai.org/uai2017/proceedings/papers/171.pdf

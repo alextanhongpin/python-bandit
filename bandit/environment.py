@@ -1,6 +1,7 @@
 from sklearn.feature_extraction import FeatureHasher
 import random
 from tqdm import tqdm
+import numpy as np
 
 USER_LIKED_ARTICLE = 1.0
 USER_DISLIKED_ARTICLE = -1.0
@@ -33,6 +34,15 @@ def random_context(n, random_state=None):
             {"user": random.choice(users), "time_of_day": random.choice(times_of_day)},
         )
 
+def one_hot_encode(context, action):
+    user = context["user"]
+    time_of_day = context["time_of_day"]
+    features = []
+    features += [1 if u == user else 0 for u in users]
+    features += [1 if t == time_of_day else 0 for t in times_of_day]
+    if action != "":
+        features += [1 if a == action else 0 for a in actions]
+    return np.array(features)
 
 def preprocess(
     context, action, hasher=FeatureHasher(n_features=100, input_type="string")

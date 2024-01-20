@@ -23,6 +23,8 @@ ucimlrepo = "^0.0.3"
 tqdm = "^4.66.1"
 seaborn = "^0.13.1"
 tensorflow = "2.15.0"
+pytest = "^7.4.4"
+coverage = "^7.4.0"
 
 
 [build-system]

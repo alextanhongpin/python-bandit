@@ -1,17 +1,24 @@
+# Adaptation of this implementation here.
+# https://renan-cunha.github.io/categories/contextual-bandits/
 import numpy as np
 from sklearn.exceptions import NotFittedError
-from sklearn.neural_network import MLPRegressor
+from sklearn.linear_model import LogisticRegression
 
 
-class NeuralBandit:
+class LogisticBandit:
     def __init__(self, *args, **kwargs):
-        self.model = MLPRegressor(*args, **kwargs)
+        self.model = LogisticRegression(*args, **kwargs)
+        self.action_history = []
+        self.rewards = []
 
     def fit(self, state: dict[str, str], action: str, reward: float):
         context = self.preprocess(state, action)
-        X = np.array(context).reshape(1, -1)
-        y = np.array(reward).ravel()
-        self.model.partial_fit(X, y)
+        X = np.array(context)
+        y = reward
+        self.action_history.append(X)
+        self.rewards.append(y)
+        if len(np.unique(self.rewards)) > 1 and len(self.rewards) % 20 == 0:
+            self.model.fit(self.action_history, self.rewards)
 
     def predict(self, state: dict[str, str], actions: list[str]) -> str:
         try:
@@ -23,14 +30,14 @@ class NeuralBandit:
         except NotFittedError:
             return np.random.choice(actions)
 
-    def policy(self, rewards: list[float]):
-        raise NotImplementedError("policy not implemented")
+    def policy(rewards: list[float]):
+        raise NotImplemented("policy not implemented")
 
     def preprocess(self, state: dict[str, str], action: str):
-        raise NotImplementedError("preprocess not implemented")
+        raise NotImplemented("preprocess not implemented")
 
 
-class EpsilonGreedyNeuralBandit(NeuralBandit):
+class EpsilonGreedyLogisticBandit(LogisticBandit):
     def __init__(self, epsilon=0.9, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.epsilon = (
@@ -46,7 +53,7 @@ class EpsilonGreedyNeuralBandit(NeuralBandit):
             return np.random.choice(range(len(rewards)))
 
 
-class SoftmaxNeuralBandit(NeuralBandit):
+class SoftmaxLogisticBandit(LogisticBandit):
     def __init__(self, temperature=0.2, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.temperature = temperature
@@ -57,37 +64,47 @@ class SoftmaxNeuralBandit(NeuralBandit):
         return np.random.choice(range(len(rewards)), p=probabilities)
 
 
-class NeuralPerArmBandit:
+class LogisticPerArmBandit:
     def __init__(self, n_actions: int, *args, **kwargs):
-        self.models = [MLPRegressor(*args, **kwargs) for _ in range(n_actions)]
+        self.models = [LogisticRegression() for _ in range(n_actions)]
+        self.action_history = [[] for _ in range(n_actions)]
+        self.rewards = [[] for _ in range(n_actions)]
+        self.n_actions = n_actions
 
     def fit(self, state: dict[str, str], action: int, reward: float):
         context = self.preprocess(state)
         X = np.array(context).reshape(1, -1)
-        y = np.array(reward).ravel()
-        self.models[action].partial_fit(X, y)
+        y = reward
+        self.action_history[action].append(X)
+        self.rewards[action].append(y)
+        _, n_features = X.shape
+        # Only train if we have at least 2 targets.
+        # We should also limit the training per timestep, e.g. every N-iterations etc.
+        if len(np.unique(self.rewards[action])) >= 2:
+            X = np.array(self.action_history[action]).reshape(-1, n_features)
+            y = np.array(self.rewards[action])
+            self.models[action].fit(X, y)
 
-    def predict(self, state: dict[str, str], actions: list[str]):
+    def predict(self, state: dict[str, str], actions: list[str]) -> str:
+        X = self.preprocess(state).reshape(1, -1)
+        rewards = np.array([self._predict(model, X) for model in self.models])
+        action = self.policy(rewards)
+        return actions[action]
+
+    def _predict(self, model, X):
         try:
-            rewards = np.array(
-                [
-                    model.predict(self.preprocess(state).reshape(1, -1))
-                    for model in self.models
-                ]
-            )
-            action = self.policy(rewards.ravel())
-            return actions[action]
+            return model.predict(X)[0]
         except NotFittedError:
-            return np.random.choice(actions)
+            return 0  # Make this selected
 
-    def policy(self, rewards):
-        raise NotImplementedError("policy not implemented")
+    def policy(rewards):
+        raise NotImplemented("policy not implemented")
 
     def preprocess(self, state: dict[str, str]):
-        raise NotImplementedError("preprocess not implemented")
+        raise NotImplemented("preprocess not implemented")
 
 
-class EpsilonGreedyNeuralPerArmBandit(NeuralPerArmBandit):
+class EpsilonGreedyLogisticPerArmBandit(LogisticPerArmBandit):
     def __init__(self, n_actions: int, epsilon=0.9, *args, **kwargs):
         super().__init__(n_actions, *args, **kwargs)
         self.epsilon = epsilon
@@ -96,12 +113,14 @@ class EpsilonGreedyNeuralPerArmBandit(NeuralPerArmBandit):
     def policy(self, rewards: list[float]) -> int:
         e = np.random.uniform(0, 1)
         if e < self.epsilon:
-            return np.argmax(rewards)
+            max_reward = max(rewards)
+            best_actions = np.argwhere(rewards == max_reward).flatten()
+            return np.random.choice(best_actions)
         else:
             return np.random.choice(range(len(rewards)))
 
 
-class SoftmaxNeuralPerArmBandit(NeuralPerArmBandit):
+class SoftmaxLogisticPerArmBandit(LogisticPerArmBandit):
     def __init__(self, n_actions: int, temperature=0.2, *args, **kwargs):
         super().__init__(n_actions, *args, **kwargs)
         self.temperature = temperature
