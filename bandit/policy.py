@@ -17,6 +17,7 @@ class Softmax(Policy):
         self.rng = rng
 
     def policy(self, vals: list[float]) -> int:
+        vals = np.array(vals)
         probs = self.softmax(vals)
         return self.rng.choice(range(len(vals)), p=probs)
 
@@ -32,11 +33,14 @@ class EGreedy(Policy):
         self.rng = rng
 
     def policy(self, vals: list[float]) -> int:
-        max_val = np.argmax(vals)
+        vals = np.array(vals)
+        max_val = max(vals)
         if self.explore():
-            return self.rng.choice(np.delete(vals, max_val))
-        indices = np.argwhere(vals == max_val)
-        return self.rng.choice(indices.flatten())
+            choices = np.argwhere(vals != max_val).flatten()
+            # All same values.
+            if len(choices) != 0:
+                return self.rng.choice(choices)
+        return self.rng.choice(np.argwhere(vals == max_val).flatten())
 
     def explore(self) -> bool:
         return self.rng.random() < self.epsilon

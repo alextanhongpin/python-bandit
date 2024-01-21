@@ -1,236 +1,47 @@
 ```python
 import os
+from itertools import product
+from timeit import default_timer as timer
 
+import numpy as np
 import pandas as pd
 import seaborn as sns
+from sklearn.linear_model import LogisticRegression
+from sklearn.neural_network import MLPRegressor
+from sklearn.tree import DecisionTreeRegressor
+from tqdm.autonotebook import tqdm
 
 import bandit.environment as env
-from bandit.logistic import (
-    EpsilonGreedyLogisticBandit,
-    EpsilonGreedyLogisticPerArmBandit,
-    SoftmaxLogisticBandit,
-    SoftmaxLogisticPerArmBandit,
-)
-from bandit.neural_bandit import (
-    EpsilonGreedyNeuralBandit,
-    EpsilonGreedyNeuralPerArmBandit,
-    SoftmaxNeuralBandit,
-    SoftmaxNeuralPerArmBandit,
-)
-from bandit.tree import (
-    EpsilonGreedyTreeBandit,
-    EpsilonGreedyTreePerArmBandit,
-    SoftmaxTreeBandit,
-    SoftmaxTreePerArmBandit,
-)
+from bandit.bandit import Bandit, PerArmBandit
+from bandit.policy import EGreedy, Softmax
+from bandit.utils import snapshot
 
 sns.set_theme()
 ```
 
+    /var/folders/7m/74_ct3hx33d878n626w1wxyc0000gn/T/ipykernel_27585/1555042788.py:11: TqdmExperimentalWarning: Using `tqdm.autonotebook.tqdm` in notebook mode. Use `tqdm.tqdm` instead to force console mode (e.g. in jupyter console)
+      from tqdm.autonotebook import tqdm
+
+
 
 ```python
-import importlib
+import re
 
-import bandit
 
-importlib.reload(bandit.neural_bandit)
-importlib.reload(bandit.logistic)
+def to_snake_case(s):
+    return re.sub(r"(?<!^)(?=[A-Z])", "_", s).lower()
 ```
 
-
-
-
-    <module 'bandit.logistic' from '/Users/alextanhongpin/Documents/python/python-bandit/bandit/logistic.py'>
-
-
+## Setup Variables
 
 
 ```python
-class ContextualEpsilonGreedyNeuralBandit(EpsilonGreedyNeuralBandit):
-    def __init__(self, actions, epsilon=1.0, *args, **kwargs):
-        super().__init__(epsilon, random_state=42, *args, **kwargs)
-        self.actions = actions
-
-    def preprocess(self, state: dict[str, str], action):
-        return env.preprocess(state, action)
-
-    def predict(self, state: dict[str, str]):
-        return super().predict(state, env.actions)
-
-
-class ContextualEpsilonGreedyNeuralPerArmBandit(EpsilonGreedyNeuralPerArmBandit):
-    def __init__(self, actions, epsilon=1.0, *args, **kwargs):
-        super().__init__(len(actions), epsilon, random_state=42, *args, **kwargs)
-        self.actions = actions
-
-    def fit(self, state: dict[str, str], action: str, reward: float):
-        super().fit(state, env.actions.index(action), reward)
-
-    def preprocess(self, state: dict[str, str]):
-        action = ""
-        return env.preprocess(state, action)
-
-    def predict(self, state: dict[str, str]):
-        return super().predict(state, env.actions)
-
-
-class ContextualEpsilonGreedyLogisticBandit(EpsilonGreedyLogisticBandit):
-    def __init__(self, actions, epsilon=1.0, *args, **kwargs):
-        super().__init__(epsilon, random_state=42, *args, **kwargs)
-        self.actions = actions
-
-    def preprocess(self, state: dict[str, str], action):
-        return env.preprocess(state, action)
-
-    def predict(self, state: dict[str, str]):
-        return super().predict(state, env.actions)
-
-
-class ContextualEpsilonGreedyLogisticPerArmBandit(EpsilonGreedyLogisticPerArmBandit):
-    def __init__(self, actions, epsilon=1.0, *args, **kwargs):
-        super().__init__(len(actions), epsilon, random_state=42, *args, **kwargs)
-        self.actions = actions
-
-    def fit(self, state: dict[str, str], action: str, reward: float):
-        super().fit(state, env.actions.index(action), reward)
-
-    def preprocess(self, state: dict[str, str]):
-        action = ""
-        return env.one_hot_encode(state, action)
-
-    def predict(self, state: dict[str, str]):
-        return super().predict(state, env.actions)
-
-
-class ContextualEpsilonGreedyTreeBandit(EpsilonGreedyTreeBandit):
-    def __init__(self, actions, epsilon=1.0, *args, **kwargs):
-        super().__init__(epsilon, random_state=42, *args, **kwargs)
-        self.actions = actions
-
-    def preprocess(self, state: dict[str, str], action):
-        return env.preprocess(state, action)
-
-    def predict(self, state: dict[str, str]):
-        return super().predict(state, env.actions)
-
-
-class ContextualEpsilonGreedyTreePerArmBandit(EpsilonGreedyTreePerArmBandit):
-    def __init__(self, actions, epsilon=1.0, *args, **kwargs):
-        super().__init__(len(actions), epsilon, random_state=42, *args, **kwargs)
-        self.actions = actions
-
-    def fit(self, state: dict[str, str], action: str, reward: float):
-        super().fit(state, env.actions.index(action), reward)
-
-    def preprocess(self, state: dict[str, str]):
-        action = ""
-        return env.one_hot_encode(state, action)
-
-    def predict(self, state: dict[str, str]):
-        return super().predict(state, env.actions)
+N = 1_000
+n_arms = len(env.actions)
 ```
 
 
 ```python
-class ContextualSoftmaxNeuralBandit(SoftmaxNeuralBandit):
-    def __init__(self, actions, temperature=1.0, *args, **kwargs):
-        super().__init__(temperature, random_state=42, *args, **kwargs)
-        self.actions = actions
-
-    def preprocess(self, state, action):
-        return env.preprocess(state, action)
-
-    def predict(self, state: dict[str, str]):
-        return super().predict(state, env.actions)
-
-
-class ContextualSoftmaxNeuralPerArmBandit(SoftmaxNeuralPerArmBandit):
-    def __init__(self, actions, temperature=1.0, *args, **kwargs):
-        super().__init__(len(actions), temperature, random_state=42, *args, **kwargs)
-        self.actions = actions
-
-    def fit(self, state: dict[str, str], action: str, reward: float):
-        super().fit(state, env.actions.index(action), reward)
-
-    def preprocess(self, state: dict[str, str]):
-        action = ""
-        return env.preprocess(state, action)
-
-    def predict(self, state: dict[str, str]):
-        return super().predict(state, env.actions)
-
-
-class ContextualSoftmaxLogisticBandit(SoftmaxLogisticBandit):
-    def __init__(self, actions, temperature=1.0, *args, **kwargs):
-        super().__init__(temperature, random_state=42, *args, **kwargs)
-        self.actions = actions
-
-    def preprocess(self, state, action):
-        return env.preprocess(state, action)
-
-    def predict(self, state: dict[str, str]):
-        return super().predict(state, env.actions)
-
-
-class ContextualSoftmaxLogisticPerArmBandit(SoftmaxLogisticPerArmBandit):
-    def __init__(self, actions, temperature=1.0, *args, **kwargs):
-        super().__init__(len(actions), temperature, random_state=42, *args, **kwargs)
-        self.actions = actions
-
-    def fit(self, state: dict[str, str], action: str, reward: float):
-        super().fit(state, env.actions.index(action), reward)
-
-    def preprocess(self, state: dict[str, str]):
-        action = ""
-        return env.one_hot_encode(state, action)
-
-    def predict(self, state: dict[str, str]):
-        return super().predict(state, env.actions)
-
-
-class ContextualSoftmaxLogisticBandit(SoftmaxLogisticBandit):
-    def __init__(self, actions, temperature=1.0, *args, **kwargs):
-        super().__init__(temperature, random_state=42, *args, **kwargs)
-        self.actions = actions
-
-    def preprocess(self, state, action):
-        return env.preprocess(state, action)
-
-    def predict(self, state: dict[str, str]):
-        return super().predict(state, env.actions)
-
-
-class ContextualSoftmaxTreePerArmBandit(SoftmaxTreePerArmBandit):
-    def __init__(self, actions, temperature=1.0, *args, **kwargs):
-        super().__init__(len(actions), temperature, random_state=42, *args, **kwargs)
-        self.actions = actions
-
-    def fit(self, state: dict[str, str], action: str, reward: float):
-        super().fit(state, env.actions.index(action), reward)
-
-    def preprocess(self, state: dict[str, str]):
-        action = ""
-        return env.one_hot_encode(state, action)
-
-    def predict(self, state: dict[str, str]):
-        return super().predict(state, env.actions)
-
-
-class ContextualSoftmaxTreeBandit(SoftmaxTreeBandit):
-    def __init__(self, actions, temperature=1.0, *args, **kwargs):
-        super().__init__(temperature, random_state=42, *args, **kwargs)
-        self.actions = actions
-
-    def preprocess(self, state, action):
-        return env.preprocess(state, action)
-
-    def predict(self, state: dict[str, str]):
-        return super().predict(state, env.actions)
-```
-
-
-```python
-N = 5_000
 file_name = "contextual_bandit.csv"
 if not os.path.exists(file_name):
     df = pd.DataFrame(index=range(N))
@@ -261,119 +72,65 @@ df.head()
   <thead>
     <tr style="text-align: right;">
       <th></th>
-      <th>ContextualEpsilonGreedyNeuralBandit_1.0</th>
-      <th>ContextualEpsilonGreedyNeuralBandit_0.9</th>
-      <th>ContextualEpsilonGreedyNeuralPerArmBandit_1.0</th>
-      <th>ContextualEpsilonGreedyNeuralPerArmBandit_0.9</th>
-      <th>ContextualSoftmaxNeuralBandit_0.2</th>
-      <th>ContextualSoftmaxNeuralBandit_0.5</th>
-      <th>ContextualSoftmaxNeuralPerArmBandit_0.2</th>
-      <th>ContextualSoftmaxNeuralPerArmBandit_0.5</th>
-      <th>ContextualEpsilonGreedyLogisticBandit_1.0</th>
-      <th>ContextualEpsilonGreedyLogisticBandit_0.9</th>
-      <th>ContextualSoftmaxLogisticBandit_0.2</th>
-      <th>ContextualSoftmaxLogisticBandit_0.5</th>
-      <th>ContextualEpsilonGreedyTreeBandit_1.0</th>
-      <th>ContextualEpsilonGreedyTreeBandit_0.9</th>
-      <th>ContextualSoftmaxTreeBandit_0.2</th>
-      <th>ContextualSoftmaxTreeBandit_0.5</th>
+      <th>logistic_regression__e_greedy_eps_0.1</th>
+      <th>logistic_regression__softmax_tau_0.2</th>
+      <th>decision_tree_regressor__e_greedy_eps_0.1</th>
+      <th>decision_tree_regressor__softmax_tau_0.2</th>
+      <th>m_l_p_regressor__e_greedy_eps_0.1</th>
+      <th>m_l_p_regressor__softmax_tau_0.2</th>
+      <th>logistic_regression_per_arm__e_greedy_eps_0.1</th>
     </tr>
   </thead>
   <tbody>
     <tr>
       <th>0</th>
-      <td>0.000000</td>
-      <td>0.000000</td>
-      <td>1.000000</td>
       <td>0.0</td>
-      <td>0.000000</td>
+      <td>1.0</td>
       <td>0.0</td>
+      <td>1.0</td>
       <td>0.0</td>
-      <td>0.00</td>
+      <td>1.0</td>
       <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.00</td>
-      <td>1.000000</td>
-      <td>1.000000</td>
-      <td>0.00</td>
-      <td>0.000000</td>
     </tr>
     <tr>
       <th>1</th>
-      <td>0.500000</td>
-      <td>0.500000</td>
-      <td>0.500000</td>
       <td>0.0</td>
-      <td>0.000000</td>
+      <td>1.0</td>
       <td>0.0</td>
+      <td>1.0</td>
       <td>0.0</td>
-      <td>0.00</td>
+      <td>1.0</td>
       <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.00</td>
-      <td>0.500000</td>
-      <td>0.500000</td>
-      <td>0.00</td>
-      <td>0.000000</td>
     </tr>
     <tr>
       <th>2</th>
-      <td>0.666667</td>
-      <td>0.666667</td>
-      <td>0.666667</td>
       <td>0.0</td>
-      <td>0.333333</td>
+      <td>1.0</td>
       <td>0.0</td>
+      <td>1.0</td>
       <td>0.0</td>
-      <td>0.00</td>
+      <td>1.0</td>
       <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.00</td>
-      <td>0.666667</td>
-      <td>0.666667</td>
-      <td>0.00</td>
-      <td>0.333333</td>
     </tr>
     <tr>
       <th>3</th>
-      <td>0.750000</td>
-      <td>0.750000</td>
-      <td>0.500000</td>
       <td>0.0</td>
-      <td>0.500000</td>
+      <td>1.0</td>
       <td>0.0</td>
+      <td>1.0</td>
       <td>0.0</td>
-      <td>0.25</td>
+      <td>1.0</td>
       <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.25</td>
-      <td>0.750000</td>
-      <td>0.750000</td>
-      <td>0.25</td>
-      <td>0.250000</td>
     </tr>
     <tr>
       <th>4</th>
-      <td>0.800000</td>
-      <td>0.800000</td>
-      <td>0.400000</td>
       <td>0.0</td>
-      <td>0.600000</td>
+      <td>1.0</td>
       <td>0.0</td>
-      <td>0.0</td>
-      <td>0.20</td>
-      <td>0.0</td>
-      <td>0.0</td>
+      <td>1.0</td>
       <td>0.2</td>
-      <td>0.20</td>
-      <td>0.800000</td>
-      <td>0.800000</td>
-      <td>0.20</td>
-      <td>0.400000</td>
+      <td>1.0</td>
+      <td>0.0</td>
     </tr>
   </tbody>
 </table>
@@ -383,19 +140,28 @@ df.head()
 
 
 ```python
-def run_simulation(model):
+def run_simulation(bandit, policy, n=N, dynamic=False):
     total_reward = 0
     avg_rewards = []
+    rng = np.random.RandomState(42)
 
-    for i, ctx in env.random_context(N, random_state=42):
+    for i in tqdm(range(N)):
+        state = env.observe(rng)
+
         # 1. Predict the action.
-        action = model.predict(ctx)
+        rewards = bandit.pull(state)
+
+        action = policy(rewards)
 
         # 2. Act and get the reward.
-        reward = env.get_cost(ctx, action)
+        if dynamic and i > N // 2:
+            get_cost = env.get_cost_new
+        else:
+            get_cost = env.get_cost
+        reward = get_cost(state, env.actions[action])
 
         # 3. Update the model.
-        model.fit(ctx, action, reward)
+        bandit.update(state, action, reward)
 
         # 4. Save the reward.
         total_reward += max(0, reward)
@@ -403,162 +169,254 @@ def run_simulation(model):
     return avg_rewards, total_reward
 ```
 
+## Setting up Contextual MAB
+
 
 ```python
 models = [
-    # EpsilonGreedy.
-    ContextualEpsilonGreedyNeuralBandit(env.actions, epsilon=1.0),
-    ContextualEpsilonGreedyNeuralBandit(env.actions, epsilon=0.9),
-    ContextualEpsilonGreedyNeuralPerArmBandit(env.actions, epsilon=1.0),
-    ContextualEpsilonGreedyNeuralPerArmBandit(env.actions, epsilon=0.9),
-    ContextualEpsilonGreedyLogisticBandit(env.actions, epsilon=1.0),
-    ContextualEpsilonGreedyLogisticBandit(env.actions, epsilon=0.9),
-    ContextualEpsilonGreedyLogisticPerArmBandit(env.actions, epsilon=1.0),
-    ContextualEpsilonGreedyLogisticPerArmBandit(env.actions, epsilon=0.9),
-    ContextualEpsilonGreedyTreeBandit(env.actions, epsilon=1.0),
-    ContextualEpsilonGreedyTreeBandit(env.actions, epsilon=0.9),
-    ContextualEpsilonGreedyTreePerArmBandit(env.actions, epsilon=1.0),
-    ContextualEpsilonGreedyTreePerArmBandit(env.actions, epsilon=0.9),
-    # Softmax.
-    ContextualSoftmaxNeuralBandit(env.actions, temperature=0.2),
-    ContextualSoftmaxNeuralBandit(env.actions, temperature=0.5),
-    ContextualSoftmaxNeuralPerArmBandit(env.actions, temperature=0.2),
-    ContextualSoftmaxNeuralPerArmBandit(env.actions, temperature=0.5),
-    ContextualSoftmaxLogisticBandit(env.actions, temperature=0.2),
-    ContextualSoftmaxLogisticBandit(env.actions, temperature=0.5),
-    ContextualSoftmaxLogisticPerArmBandit(env.actions, temperature=0.2),
-    ContextualSoftmaxLogisticPerArmBandit(env.actions, temperature=0.5),
-    ContextualSoftmaxTreeBandit(env.actions, temperature=0.2),
-    ContextualSoftmaxTreeBandit(env.actions, temperature=0.5),
-    ContextualSoftmaxTreePerArmBandit(env.actions, temperature=0.2),
-    ContextualSoftmaxTreePerArmBandit(env.actions, temperature=0.5),
+    LogisticRegression(random_state=42),
+    DecisionTreeRegressor(random_state=42),
+    MLPRegressor(random_state=42),
 ]
-# TODO: Benchmark time.
-for model in models:
-    if (name := model.__name__) in df:
-        print("skipping", name)
+policies = [
+    EGreedy(epsilon=0.1),
+    Softmax(tau=0.2),
+]
+
+for model, policy in product(models, policies):
+    model_name = f"{model.__class__.__name__}MAB_{policy.__class__.__name__}"
+    if (val := policy.__dict__.get("tau", None)) is not None:
+        model_name += f"_tau_{val}"
+    elif (val := policy.__dict__.get("epsilon", None)) is not None:
+        model_name += f"_eps_{val}"
+    model_name = to_snake_case(model_name)
+    if model_name in df:
+        print("skipping", model_name)
         # if "Logistic" not in name and "Tree" not in name:
         # continue
         continue
 
-    avg_rewards, total_reward = run_simulation(model)
-    df[model.__name__] = avg_rewards
-    print(model.__name__, "total_reward", total_reward)
+    print("Running", model_name)
+    with snapshot("contextual_bandit.json", model_name) as meta:
+        avg_rewards, total_reward = run_simulation(Bandit(model, n_arms), policy)
+        meta["total_reward"] = total_reward
+
+    df[model_name] = avg_rewards
     df.to_csv(file_name, index=False)
 ```
 
-    skipping ContextualEpsilonGreedyNeuralBandit_1.0
-    skipping ContextualEpsilonGreedyNeuralBandit_0.9
-    skipping ContextualEpsilonGreedyNeuralPerArmBandit_1.0
-    skipping ContextualEpsilonGreedyNeuralPerArmBandit_0.9
-    skipping ContextualEpsilonGreedyLogisticBandit_1.0
+    skipping logistic_regression_m_a_b__e_greedy_eps_0.1
+    skipping logistic_regression_m_a_b__softmax_tau_0.2
+    skipping decision_tree_regressor_m_a_b__e_greedy_eps_0.1
+    skipping decision_tree_regressor_m_a_b__softmax_tau_0.2
+    skipping m_l_p_regressor_m_a_b__e_greedy_eps_0.1
+    skipping m_l_p_regressor_m_a_b__softmax_tau_0.2
+
 
+## Setting up PerArm Contextual Bandit
 
-    100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████| 5000/5000 [01:22<00:00, 60.96it/s]
 
+```python
+models = [
+    [LogisticRegression(random_state=42) for _ in range(n_arms)],
+    [DecisionTreeRegressor(random_state=42) for _ in range(n_arms)],
+    [MLPRegressor(random_state=42) for _ in range(n_arms)],
+]
+policies = [
+    EGreedy(epsilon=0.1),
+    Softmax(tau=0.2),
+]
 
-    ContextualEpsilonGreedyLogisticBandit_1.0 total_reward 2539.0
-    skipping ContextualEpsilonGreedyLogisticBandit_0.9
+for models, policy in product(models, policies):
+    model = models[0]
+    model_name = f"{model.__class__.__name__}PerArm_{policy.__class__.__name__}"
+    if (val := policy.__dict__.get("tau", None)) is not None:
+        model_name += f"_tau_{val}"
+    elif (val := policy.__dict__.get("epsilon", None)) is not None:
+        model_name += f"_eps_{val}"
+    model_name = to_snake_case(model_name)
+    if model_name in df:
+        print("skipping", model_name)
+        # if "Logistic" not in name and "Tree" not in name:
+        # continue
+        continue
 
+    print("Running", model_name)
+    with snapshot("contextual_bandit.json", model_name) as meta:
+        avg_rewards, total_reward = run_simulation(PerArmBandit(models), policy)
+        meta["total_reward"] = total_reward
 
-    100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████| 5000/5000 [01:27<00:00, 57.44it/s]
+    df[model_name] = avg_rewards
+    df.to_csv(file_name, index=False)
+```
 
+    skipping logistic_regression_per_arm__e_greedy_eps_0.1
+    skipping logistic_regression_per_arm__softmax_tau_0.2
+    skipping decision_tree_regressor_per_arm__e_greedy_eps_0.1
+    skipping decision_tree_regressor_per_arm__softmax_tau_0.2
+    skipping m_l_p_regressor_per_arm__e_greedy_eps_0.1
+    skipping m_l_p_regressor_per_arm__softmax_tau_0.2
 
-    ContextualEpsilonGreedyLogisticBandit_0.9 total_reward 2357.0
 
+## Setting up Dynamic MAB Contextual Bandit
 
-    100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████| 5000/5000 [00:08<00:00, 576.68it/s]
 
+```python
+models = [
+    LogisticRegression(random_state=42),
+    DecisionTreeRegressor(random_state=42),
+    MLPRegressor(random_state=42),
+]
+policies = [
+    EGreedy(epsilon=0.1),
+    Softmax(tau=0.2),
+]
 
-    ContextualEpsilonGreedyLogisticPerArmBandit_1.0 total_reward 1259.0
+for model, policy in product(models, policies):
+    model_name = f"{model.__class__.__name__}MAB_Dynamic_{policy.__class__.__name__}"
+    if (val := policy.__dict__.get("tau", None)) is not None:
+        model_name += f"_tau_{val}"
+    elif (val := policy.__dict__.get("epsilon", None)) is not None:
+        model_name += f"_eps_{val}"
+    model_name = to_snake_case(model_name)
+    if model_name in df:
+        print("skipping", model_name)
+        # if "Logistic" not in name and "Tree" not in name:
+        # continue
+        continue
 
+    print("Running", model_name)
+    with snapshot("contextual_bandit.json", model_name) as meta:
+        avg_rewards, total_reward = run_simulation(
+            Bandit(model, n_arms), policy, dynamic=True
+        )
+        meta["total_reward"] = total_reward
 
-    100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████| 5000/5000 [00:13<00:00, 383.50it/s]
+    df[model_name] = avg_rewards
+    df.to_csv(file_name, index=False)
+```
 
+    Running logistic_regression_m_a_b__dynamic__e_greedy_eps_0.1
 
-    ContextualEpsilonGreedyLogisticPerArmBandit_0.9 total_reward 2476.0
-    skipping ContextualEpsilonGreedyTreeBandit_1.0
 
 
-    100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████| 5000/5000 [00:31<00:00, 158.98it/s]
+      0%|          | 0/1000 [00:00<?, ?it/s]
 
 
-    ContextualEpsilonGreedyTreeBandit_1.0 total_reward 2530.0
-    skipping ContextualEpsilonGreedyTreeBandit_0.9
+    Running logistic_regression_m_a_b__dynamic__softmax_tau_0.2
 
 
-    100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████| 5000/5000 [00:41<00:00, 120.53it/s]
 
+      0%|          | 0/1000 [00:00<?, ?it/s]
 
-    ContextualEpsilonGreedyTreeBandit_0.9 total_reward 4567.0
 
+    Running decision_tree_regressor_m_a_b__dynamic__e_greedy_eps_0.1
 
-    100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████| 5000/5000 [00:09<00:00, 548.29it/s]
 
 
-    ContextualEpsilonGreedyTreePerArmBandit_1.0 total_reward 3720.0
+      0%|          | 0/1000 [00:00<?, ?it/s]
 
 
-    100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████| 5000/5000 [00:09<00:00, 523.69it/s]
+    Running decision_tree_regressor_m_a_b__dynamic__softmax_tau_0.2
 
 
-    ContextualEpsilonGreedyTreePerArmBandit_0.9 total_reward 4521.0
-    skipping ContextualSoftmaxNeuralBandit_0.2
-    skipping ContextualSoftmaxNeuralBandit_0.5
-    skipping ContextualSoftmaxNeuralPerArmBandit_0.2
-    skipping ContextualSoftmaxNeuralPerArmBandit_0.5
-    skipping ContextualSoftmaxLogisticBandit_0.2
 
+      0%|          | 0/1000 [00:00<?, ?it/s]
 
-    100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████| 5000/5000 [01:48<00:00, 46.21it/s]
 
+    Running m_l_p_regressor_m_a_b__dynamic__e_greedy_eps_0.1
 
-    ContextualSoftmaxLogisticBandit_0.2 total_reward 2056.0
-    skipping ContextualSoftmaxLogisticBandit_0.5
 
 
-    100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████| 5000/5000 [01:27<00:00, 57.19it/s]
+      0%|          | 0/1000 [00:00<?, ?it/s]
 
 
-    ContextualSoftmaxLogisticBandit_0.5 total_reward 2068.0
+    Running m_l_p_regressor_m_a_b__dynamic__softmax_tau_0.2
 
 
-    100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████| 5000/5000 [00:14<00:00, 346.88it/s]
 
+      0%|          | 0/1000 [00:00<?, ?it/s]
 
-    ContextualSoftmaxLogisticPerArmBandit_0.2 total_reward 3071.0
 
+## Setting up Dynamic PerArm Contextual Bandit
 
-    100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████| 5000/5000 [00:12<00:00, 403.57it/s]
 
+```python
+models = [
+    [LogisticRegression(random_state=42) for _ in range(n_arms)],
+    [DecisionTreeRegressor(random_state=42) for _ in range(n_arms)],
+    [MLPRegressor(random_state=42) for _ in range(n_arms)],
+]
+policies = [
+    EGreedy(epsilon=0.1),
+    Softmax(tau=0.2),
+]
 
-    ContextualSoftmaxLogisticPerArmBandit_0.5 total_reward 2269.0
-    skipping ContextualSoftmaxTreeBandit_0.2
+for models, policy in product(models, policies):
+    model = models[0]
+    model_name = f"{model.__class__.__name__}PerArm_Dynamic_{policy.__class__.__name__}"
+    if (val := policy.__dict__.get("tau", None)) is not None:
+        model_name += f"_tau_{val}"
+    elif (val := policy.__dict__.get("epsilon", None)) is not None:
+        model_name += f"_eps_{val}"
+    model_name = to_snake_case(model_name)
+    if model_name in df:
+        print("skipping", model_name)
+        # if "Logistic" not in name and "Tree" not in name:
+        # continue
+        continue
 
+    print("Running", model_name)
+    with snapshot("contextual_bandit.json", model_name) as meta:
+        avg_rewards, total_reward = run_simulation(
+            PerArmBandit(models), policy, dynamic=True
+        )
+        meta["total_reward"] = total_reward
 
-    100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████| 5000/5000 [00:36<00:00, 136.61it/s]
+    df[model_name] = avg_rewards
+    df.to_csv(file_name, index=False)
+```
 
+    Running logistic_regression_per_arm__dynamic__e_greedy_eps_0.1
 
-    ContextualSoftmaxTreeBandit_0.2 total_reward 4957.0
-    skipping ContextualSoftmaxTreeBandit_0.5
 
 
-    100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████| 5000/5000 [00:44<00:00, 112.41it/s]
+      0%|          | 0/1000 [00:00<?, ?it/s]
 
 
-    ContextualSoftmaxTreeBandit_0.5 total_reward 4491.0
+    Running logistic_regression_per_arm__dynamic__softmax_tau_0.2
 
 
-    100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████| 5000/5000 [00:09<00:00, 514.03it/s]
 
+      0%|          | 0/1000 [00:00<?, ?it/s]
 
-    ContextualSoftmaxTreePerArmBandit_0.2 total_reward 4830.0
 
+    Running decision_tree_regressor_per_arm__dynamic__e_greedy_eps_0.1
 
-    100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████| 5000/5000 [00:07<00:00, 667.51it/s]
 
 
-    ContextualSoftmaxTreePerArmBandit_0.5 total_reward 3114.0
+      0%|          | 0/1000 [00:00<?, ?it/s]
+
+
+    Running decision_tree_regressor_per_arm__dynamic__softmax_tau_0.2
+
+
+
+      0%|          | 0/1000 [00:00<?, ?it/s]
+
+
+    Running m_l_p_regressor_per_arm__dynamic__e_greedy_eps_0.1
+
+
+
+      0%|          | 0/1000 [00:00<?, ?it/s]
+
+
+    Running m_l_p_regressor_per_arm__dynamic__softmax_tau_0.2
+
+
+
+      0%|          | 0/1000 [00:00<?, ?it/s]
 
 
 
@@ -578,14 +436,10 @@ def plot(*patterns):
 
     style = []
     for col in cols:
-        if "NeuralBandit" in col:
+        if "e_greedy" in col:
             style.append("-")
-        elif "NeuralBanditPerArm" in col:
-            style.append(":")
-        elif "Tree" in col:
+        elif "softmax" in col:
             style.append("--")
-        elif "Logistic" in col:
-            style.append("-.")
         else:
             style.append("-")
     df[cols].plot(
@@ -597,108 +451,13 @@ def plot(*patterns):
     )
 ```
 
+## Plots
+
+### All
+
 
 ```python
 plot()
-```
-
-
-    
-![png](12_modular_files/12_modular_9_0.png)
-    
-
-
-
-```python
-plot("Softmax")
-```
-
-
-    
-![png](12_modular_files/12_modular_10_0.png)
-    
-
-
-
-```python
-plot("SoftmaxNeuralBandit")
-```
-
-
-    
-![png](12_modular_files/12_modular_11_0.png)
-    
-
-
-
-```python
-plot("SoftmaxNeuralPerArmBandit")
-```
-
-
-    
-![png](12_modular_files/12_modular_12_0.png)
-    
-
-
-
-```python
-plot("Softmax", "0.2")
-```
-
-
-    
-![png](12_modular_files/12_modular_13_0.png)
-    
-
-
-
-```python
-plot("Softmax", "0.5")
-```
-
-
-    
-![png](12_modular_files/12_modular_14_0.png)
-    
-
-
-
-```python
-plot("Greedy")
-```
-
-
-    
-![png](12_modular_files/12_modular_15_0.png)
-    
-
-
-
-```python
-plot("GreedyNeuralBandit")
-```
-
-
-    
-![png](12_modular_files/12_modular_16_0.png)
-    
-
-
-
-```python
-plot("GreedyNeuralPerArmBandit")
-```
-
-
-    
-![png](12_modular_files/12_modular_17_0.png)
-    
-
-
-
-```python
-plot("Greedy", "0.9")
 ```
 
 
@@ -707,20 +466,11 @@ plot("Greedy", "0.9")
     
 
 
-
-```python
-plot("Greedy", "1.0")
-```
-
-
-    
-![png](12_modular_files/12_modular_19_0.png)
-    
-
+### Softmax PerArm
 
 
 ```python
-plot("GreedyNeural", "1.0")
+plot("per_arm", "softmax")
 ```
 
 
@@ -729,20 +479,11 @@ plot("GreedyNeural", "1.0")
     
 
 
-
-```python
-plot("NeuralBandit")
-```
-
-
-    
-![png](12_modular_files/12_modular_21_0.png)
-    
-
+### Softmax MAB
 
 
 ```python
-plot("NeuralPerArmBandit")
+plot("m_a_b", "softmax")
 ```
 
 
@@ -751,20 +492,11 @@ plot("NeuralPerArmBandit")
     
 
 
-
-```python
-plot("Logistic")
-```
-
-
-    
-![png](12_modular_files/12_modular_23_0.png)
-    
-
+## Softmax Dynamic MAB
 
 
 ```python
-plot("Logistic", "Epsilon", "PerArm")
+plot("m_a_b", "softmax", "dynamic")
 ```
 
 
@@ -773,67 +505,17 @@ plot("Logistic", "Epsilon", "PerArm")
     
 
 
-
-```python
-plot("Logistic", "Epsilon")
-```
-
-
-    
-![png](12_modular_files/12_modular_25_0.png)
-    
-
+## Softmax Dynamic Per Arm
 
 
 ```python
-plot("Tree")
+plot("per_arm", "softmax", "dynamic")
 ```
 
 
     
 ![png](12_modular_files/12_modular_26_0.png)
     
-
-
-
-```python
-model = models[-1]
-# model = ContextualEpsilonGreedyTreeBandit(env.actions, epsilon=0.9)
-
-# _, total_reward = run_simulation(model)
-# total_reward
-model.models
-```
-
-
-
-
-    [DecisionTreeRegressor(),
-     DecisionTreeRegressor(),
-     DecisionTreeRegressor(),
-     DecisionTreeRegressor(),
-     DecisionTreeRegressor(),
-     DecisionTreeRegressor(),
-     DecisionTreeRegressor()]
-
-
-
-
-```python
-ctx = {"user": "Tom", "time_of_day": "morning"}
-# 1. Predict the action.
-action = model.predict(ctx)
-
-# 2. Act and get the reward.
-reward = env.get_cost(ctx, action)
-print("Context:", ctx)
-print("Action:", action)
-print("Reward:", reward)
-```
-
-    Context: {'user': 'Tom', 'time_of_day': 'morning'}
-    Action: politics
-    Reward: 1.0
 
 
 
