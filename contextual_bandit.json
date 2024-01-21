@@ -1,0 +1,122 @@
+{
+    "logistic_regression__e_greedy_eps_0.1": {
+        "total_reward": 675.0,
+        "elapsed_time": 9.656618665962014
+    },
+    "logistic_regression__softmax_tau_0.2": {
+        "total_reward": 694.0,
+        "elapsed_time": 10.482792630034965
+    },
+    "decision_tree_regressor__e_greedy_eps_0.1": {
+        "total_reward": 848.0,
+        "elapsed_time": 10.4357955220039
+    },
+    "decision_tree_regressor__softmax_tau_0.2": {
+        "total_reward": 981.0,
+        "elapsed_time": 4.883026941039134
+    },
+    "m_l_p_regressor__e_greedy_eps_0.1": {
+        "total_reward": 826.0,
+        "elapsed_time": 3.263053963019047
+    },
+    "m_l_p_regressor__softmax_tau_0.2": {
+        "total_reward": 992.0,
+        "elapsed_time": 3.6665552720078267
+    },
+    "logistic_regression_per_arm__e_greedy_eps_0.1": {
+        "total_reward": 847.0,
+        "elapsed_time": 12.065362885012291
+    },
+    "logistic_regression_per_arm__softmax_tau_0.2": {
+        "total_reward": 245.0,
+        "elapsed_time": 3.389183224993758
+    },
+    "decision_tree_regressor_per_arm__e_greedy_eps_0.1": {
+        "total_reward": 826.0,
+        "elapsed_time": 3.1139195050345734
+    },
+    "decision_tree_regressor_per_arm__softmax_tau_0.2": {
+        "total_reward": 838.0,
+        "elapsed_time": 3.302814703027252
+    },
+    "m_l_p_regressor_per_arm__e_greedy_eps_0.1": {
+        "total_reward": 854.0,
+        "elapsed_time": 3.9143070160062052
+    },
+    "m_l_p_regressor_per_arm__softmax_tau_0.2": {
+        "total_reward": 972.0,
+        "elapsed_time": 3.9643444039975293
+    },
+    "logistic_regression_m_a_b__e_greedy_eps_0.1": {
+        "total_reward": 519.0,
+        "elapsed_time": 2.531306931981817
+    },
+    "logistic_regression_m_a_b__softmax_tau_0.2": {
+        "total_reward": 719.0,
+        "elapsed_time": 1.5164076200453565
+    },
+    "decision_tree_regressor_m_a_b__e_greedy_eps_0.1": {
+        "total_reward": 853.0,
+        "elapsed_time": 1.0805591809912585
+    },
+    "decision_tree_regressor_m_a_b__softmax_tau_0.2": {
+        "total_reward": 1000.0,
+        "elapsed_time": 0.810390136030037
+    },
+    "m_l_p_regressor_m_a_b__e_greedy_eps_0.1": {
+        "total_reward": 846.0,
+        "elapsed_time": 2.1915049590170383
+    },
+    "m_l_p_regressor_m_a_b__softmax_tau_0.2": {
+        "total_reward": 989.0,
+        "elapsed_time": 2.538258074026089
+    },
+    "logistic_regression_m_a_b__dynamic__e_greedy_eps_0.1": {
+        "total_reward": 656.0,
+        "elapsed_time": 1.3419129729736596
+    },
+    "logistic_regression_m_a_b__dynamic__softmax_tau_0.2": {
+        "total_reward": 595.0,
+        "elapsed_time": 1.2823627489851788
+    },
+    "decision_tree_regressor_m_a_b__dynamic__e_greedy_eps_0.1": {
+        "total_reward": 680.0,
+        "elapsed_time": 0.9911772990017198
+    },
+    "decision_tree_regressor_m_a_b__dynamic__softmax_tau_0.2": {
+        "total_reward": 724.0,
+        "elapsed_time": 1.0181605409597978
+    },
+    "m_l_p_regressor_m_a_b__dynamic__e_greedy_eps_0.1": {
+        "total_reward": 720.0,
+        "elapsed_time": 2.766854871995747
+    },
+    "m_l_p_regressor_m_a_b__dynamic__softmax_tau_0.2": {
+        "total_reward": 889.0,
+        "elapsed_time": 2.9453577660024166
+    },
+    "logistic_regression_per_arm__dynamic__e_greedy_eps_0.1": {
+        "total_reward": 396.0,
+        "elapsed_time": 3.767365084029734
+    },
+    "logistic_regression_per_arm__dynamic__softmax_tau_0.2": {
+        "total_reward": 333.0,
+        "elapsed_time": 2.832663446024526
+    },
+    "decision_tree_regressor_per_arm__dynamic__e_greedy_eps_0.1": {
+        "total_reward": 597.0,
+        "elapsed_time": 3.320579557970632
+    },
+    "decision_tree_regressor_per_arm__dynamic__softmax_tau_0.2": {
+        "total_reward": 671.0,
+        "elapsed_time": 3.2480890420265496
+    },
+    "m_l_p_regressor_per_arm__dynamic__e_greedy_eps_0.1": {
+        "total_reward": 774.0,
+        "elapsed_time": 5.340787853987422
+    },
+    "m_l_p_regressor_per_arm__dynamic__softmax_tau_0.2": {
+        "total_reward": 860.0,
+        "elapsed_time": 5.000918817007914
+    }
+}

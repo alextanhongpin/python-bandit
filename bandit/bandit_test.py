@@ -3,14 +3,14 @@ from sklearn.linear_model import LogisticRegression
 
 
 def test_logistic_bandit_pull():
-    bandit = Bandit(LogisticRegression(random_state=42), 10)
+    bandit = Bandit(LogisticRegression(random_state=42), n_arms=10)
     state = {"user": "john", "page": "home"}
     rewards = bandit.pull(state)
     assert rewards.shape == (10,)
 
 
 def test_logistic_bandit_update():
-    bandit = Bandit(LogisticRegression(random_state=42), 10)
+    bandit = Bandit(LogisticRegression(random_state=42), n_arms=10)
     state = {"user": "john", "page": "home"}
     action = 1  # e.g. user clicked on the second button
     bandit.update(state, action, 1)
