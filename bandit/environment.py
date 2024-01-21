@@ -12,6 +12,9 @@ actions = ["politics", "sports", "music", "food", "finance", "health", "camping"
 
 
 def get_cost(context, action):
+    if action not in actions:
+        raise ValueError(f"Unknown action: {action}")
+
     match (context["user"], context["time_of_day"], action):
         case ("Tom", "morning", "politics"):
             return USER_LIKED_ARTICLE
@@ -26,6 +29,8 @@ def get_cost(context, action):
 
 
 def get_cost_new1(context, action):
+    if action not in actions:
+        raise ValueError(f"Unknown action: {action}")
     match (context["user"], context["time_of_day"], action):
         case ("Tom", "morning", "politics"):
             return USER_LIKED_ARTICLE
@@ -39,6 +44,9 @@ def get_cost_new1(context, action):
             return USER_DISLIKED_ARTICLE
 
 
+def random_state(rng=np.random.RandomState(None)):
+    return {"user": rng.choice(users), "time_of_day": rng.choice(times_of_day)}
+
 
 def random_context(n, random_state=None):
     if random_state is not None:
@@ -49,6 +57,7 @@ def random_context(n, random_state=None):
             {"user": random.choice(users), "time_of_day": random.choice(times_of_day)},
         )
 
+
 def one_hot_encode(context, action):
     user = context["user"]
     time_of_day = context["time_of_day"]
@@ -58,6 +67,7 @@ def one_hot_encode(context, action):
     if action != "":
         features += [1 if a == action else 0 for a in actions]
     return np.array(features)
+
 
 def preprocess(
     context, action, hasher=FeatureHasher(n_features=100, input_type="string")

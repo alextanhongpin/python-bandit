@@ -2,136 +2,94 @@
 # https://renan-cunha.github.io/categories/contextual-bandits/
 import numpy as np
 from sklearn.exceptions import NotFittedError
+from sklearn.feature_extraction import FeatureHasher
 from sklearn.linear_model import LogisticRegression
+from .base import BaseBandit, extract_features
 
 
-class LogisticBandit:
-    def __init__(self, *args, **kwargs):
+class LogisticBandit(BaseBandit):
+    def __init__(
+        self,
+        n_arms,
+        /,
+        *args,
+        seed=None,
+        preprocess=FeatureHasher(100, input_type="string"),
+        **kwargs,
+    ):
+        super().__init__(n_arms)
+        self.rng = np.random.RandomState(seed)
+
+        kwargs.update(random_state=seed)
         self.model = LogisticRegression(*args, **kwargs)
-        self.action_history = []
+
         self.rewards = []
+        self.state_actions = []
+        self.preprocess = preprocess
 
-    def fit(self, state: dict[str, str], action: str, reward: float):
-        context = self.preprocess(state, action)
-        X = np.array(context)
-        y = reward
-        self.action_history.append(X)
-        self.rewards.append(y)
-        if len(np.unique(self.rewards)) > 1 and len(self.rewards) % 20 == 0:
-            self.model.fit(self.action_history, self.rewards)
+    def update(self, state: dict, action: int, reward: int):
+        self.state_actions.append(extract_features(state, action))
+        self.rewards.append(reward)
 
-    def predict(self, state: dict[str, str], actions: list[str]) -> str:
+        # Need at least 2 class sample to fit the model.
+        if len(np.unique(self.rewards)) < 2 and len(self.rewards) % 20 != 0:
+            return
+        X = self.preprocess.transform(self.state_actions)
+        y = self.rewards
+        self.model.fit(X, y)
+
+    def pull(self, state: dict) -> np.ndarray:
         try:
-            rewards = self.model.predict(
-                [self.preprocess(state, action) for action in actions]
+            X = self.preprocess.transform(
+                [extract_features(state, i) for i in range(self.n_arms)]
             )
-            action = self.policy(rewards)
-            return actions[action]
+            return self.model.predict_proba(X)[
+                :, -1
+            ]  # The last class should be the positive class.
         except NotFittedError:
-            return np.random.choice(actions)
-
-    def policy(rewards: list[float]):
-        raise NotImplemented("policy not implemented")
-
-    def preprocess(self, state: dict[str, str], action: str):
-        raise NotImplemented("preprocess not implemented")
+            # This is the recommended way to generate random distribution.
+            # If you are wondering why we did not use random.uniform():
+            # https://stackoverflow.com/questions/47231852/np-random-rand-vs-np-random-random
+            return self.rng.random(self.n_arms)
 
 
-class EpsilonGreedyLogisticBandit(LogisticBandit):
-    def __init__(self, epsilon=0.9, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.epsilon = (
-            epsilon  # Default to 0.9, which means 10% exploration, 90% exploitation.
-        )
-        self.__name__ = f"{self.__class__.__name__}_{epsilon}"
+class LogisticPerArmBandit(BaseBandit):
+    def __init__(
+        self, n_arms, /, *args, seed=None, preprocess=FeatureHasher(100), **kwargs
+    ):
+        super().__init__(n_arms)
+        self.rng = np.random.RandomState(seed)
 
-    def policy(self, rewards: list[float]) -> int:
-        e = np.random.uniform(0, 1)
-        if e < self.epsilon:
-            return np.argmax(rewards)
-        else:
-            return np.random.choice(range(len(rewards)))
+        kwargs.update(random_state=seed)
+        self.models = [LogisticRegression(*args, **kwargs) for _ in range(n_arms)]
 
+        self.rewards = {i: [] for i in range(n_arms)}
+        self.state_actions = {i: [] for i in range(n_arms)}
+        self.preprocess = preprocess
 
-class SoftmaxLogisticBandit(LogisticBandit):
-    def __init__(self, temperature=0.2, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.temperature = temperature
-        self.__name__ = f"{self.__class__.__name__}_{temperature}"
-
-    def policy(self, rewards: list[float]):
-        probabilities = softmax(rewards, temperature=self.temperature)
-        return np.random.choice(range(len(rewards)), p=probabilities)
-
-
-class LogisticPerArmBandit:
-    def __init__(self, n_actions: int, *args, **kwargs):
-        self.models = [LogisticRegression() for _ in range(n_actions)]
-        self.action_history = [[] for _ in range(n_actions)]
-        self.rewards = [[] for _ in range(n_actions)]
-        self.n_actions = n_actions
-
-    def fit(self, state: dict[str, str], action: int, reward: float):
-        context = self.preprocess(state)
-        X = np.array(context).reshape(1, -1)
-        y = reward
-        self.action_history[action].append(X)
-        self.rewards[action].append(y)
-        _, n_features = X.shape
+    def update(self, state: dict, action: int, reward: int):
+        self.state_actions[action].append(state)
+        self.rewards[action].append(reward)
         # Only train if we have at least 2 targets.
-        # We should also limit the training per timestep, e.g. every N-iterations etc.
-        if len(np.unique(self.rewards[action])) >= 2:
-            X = np.array(self.action_history[action]).reshape(-1, n_features)
-            y = np.array(self.rewards[action])
-            self.models[action].fit(X, y)
+        # We should also limit the training per timestep, e.g. every
+        # N-iterations etc.
+        X = self.preprocess.transform(self.state_actions[action])
+        y = self.rewards[action]
+        self.models[action].fit(X, y)
 
-    def predict(self, state: dict[str, str], actions: list[str]) -> str:
-        X = self.preprocess(state).reshape(1, -1)
-        rewards = np.array([self._predict(model, X) for model in self.models])
-        action = self.policy(rewards)
-        return actions[action]
+    def pull(self, state: dict) -> np.ndarray:
+        rewards = np.zeros(self.n_arms)
+        for action in range(self.n_arms):
+            try:
+                X = self.preprocess.transform([state])
+                y = self.models[action].predict(X.reshape(1, -1))
+                rewards[action] = y[0]
+            except NotFittedError:
+                # Add data with equal probability.
+                self.state_actions[action].append(state)
+                self.state_actions[action].append(state)
+                self.rewards[action].append(0)
+                self.rewards[action].append(1)
 
-    def _predict(self, model, X):
-        try:
-            return model.predict(X)[0]
-        except NotFittedError:
-            return 0  # Make this selected
-
-    def policy(rewards):
-        raise NotImplemented("policy not implemented")
-
-    def preprocess(self, state: dict[str, str]):
-        raise NotImplemented("preprocess not implemented")
-
-
-class EpsilonGreedyLogisticPerArmBandit(LogisticPerArmBandit):
-    def __init__(self, n_actions: int, epsilon=0.9, *args, **kwargs):
-        super().__init__(n_actions, *args, **kwargs)
-        self.epsilon = epsilon
-        self.__name__ = f"{self.__class__.__name__}_{epsilon}"
-
-    def policy(self, rewards: list[float]) -> int:
-        e = np.random.uniform(0, 1)
-        if e < self.epsilon:
-            max_reward = max(rewards)
-            best_actions = np.argwhere(rewards == max_reward).flatten()
-            return np.random.choice(best_actions)
-        else:
-            return np.random.choice(range(len(rewards)))
-
-
-class SoftmaxLogisticPerArmBandit(LogisticPerArmBandit):
-    def __init__(self, n_actions: int, temperature=0.2, *args, **kwargs):
-        super().__init__(n_actions, *args, **kwargs)
-        self.temperature = temperature
-        self.__name__ = f"{self.__class__.__name__}_{temperature}"
-
-    def policy(self, rewards: list[float]):
-        probabilities = softmax(rewards, temperature=self.temperature)
-        return np.random.choice(range(len(rewards)), p=probabilities)
-
-
-def softmax(lst, temperature=1.0):
-    lst = np.array(lst) / temperature
-    exps = np.exp(lst)
-    return exps / np.sum(exps)
+                rewards[action] = self.rng.random()
+        return rewards
