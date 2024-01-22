@@ -19,7 +19,7 @@ from bandit.utils import snapshot
 sns.set_theme()
 ```
 
-    /var/folders/7m/74_ct3hx33d878n626w1wxyc0000gn/T/ipykernel_27585/1555042788.py:11: TqdmExperimentalWarning: Using `tqdm.autonotebook.tqdm` in notebook mode. Use `tqdm.tqdm` instead to force console mode (e.g. in jupyter console)
+    /var/folders/7m/74_ct3hx33d878n626w1wxyc0000gn/T/ipykernel_84348/1555042788.py:11: TqdmExperimentalWarning: Using `tqdm.autonotebook.tqdm` in notebook mode. Use `tqdm.tqdm` instead to force console mode (e.g. in jupyter console)
       from tqdm.autonotebook import tqdm
 
 
@@ -79,6 +79,20 @@ df.head()
       <th>m_l_p_regressor__e_greedy_eps_0.1</th>
       <th>m_l_p_regressor__softmax_tau_0.2</th>
       <th>logistic_regression_per_arm__e_greedy_eps_0.1</th>
+      <th>logistic_regression_per_arm__softmax_tau_0.2</th>
+      <th>decision_tree_regressor_per_arm__e_greedy_eps_0.1</th>
+      <th>decision_tree_regressor_per_arm__softmax_tau_0.2</th>
+      <th>...</th>
+      <th>decision_tree_regressor_m_a_b__dynamic__e_greedy_eps_0.1</th>
+      <th>decision_tree_regressor_m_a_b__dynamic__softmax_tau_0.2</th>
+      <th>m_l_p_regressor_m_a_b__dynamic__e_greedy_eps_0.1</th>
+      <th>m_l_p_regressor_m_a_b__dynamic__softmax_tau_0.2</th>
+      <th>logistic_regression_per_arm__dynamic__e_greedy_eps_0.1</th>
+      <th>logistic_regression_per_arm__dynamic__softmax_tau_0.2</th>
+      <th>decision_tree_regressor_per_arm__dynamic__e_greedy_eps_0.1</th>
+      <th>decision_tree_regressor_per_arm__dynamic__softmax_tau_0.2</th>
+      <th>m_l_p_regressor_per_arm__dynamic__e_greedy_eps_0.1</th>
+      <th>m_l_p_regressor_per_arm__dynamic__softmax_tau_0.2</th>
     </tr>
   </thead>
   <tbody>
@@ -91,6 +105,20 @@ df.head()
       <td>0.0</td>
       <td>1.0</td>
       <td>0.0</td>
+      <td>0.0</td>
+      <td>0.00</td>
+      <td>0.000000</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>1.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>1.000000</td>
+      <td>0.000000</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.000000</td>
     </tr>
     <tr>
       <th>1</th>
@@ -101,6 +129,20 @@ df.head()
       <td>0.0</td>
       <td>1.0</td>
       <td>0.0</td>
+      <td>0.0</td>
+      <td>0.00</td>
+      <td>0.500000</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>1.000000</td>
+      <td>0.000000</td>
+      <td>0.500000</td>
+      <td>0.500000</td>
+      <td>0.500000</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.500000</td>
     </tr>
     <tr>
       <th>2</th>
@@ -111,6 +153,20 @@ df.head()
       <td>0.0</td>
       <td>1.0</td>
       <td>0.0</td>
+      <td>0.0</td>
+      <td>0.00</td>
+      <td>0.666667</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.666667</td>
+      <td>0.333333</td>
+      <td>0.333333</td>
+      <td>0.333333</td>
+      <td>0.666667</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.333333</td>
     </tr>
     <tr>
       <th>3</th>
@@ -121,6 +177,20 @@ df.head()
       <td>0.0</td>
       <td>1.0</td>
       <td>0.0</td>
+      <td>0.0</td>
+      <td>0.25</td>
+      <td>0.750000</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.750000</td>
+      <td>0.250000</td>
+      <td>0.500000</td>
+      <td>0.500000</td>
+      <td>0.750000</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.500000</td>
     </tr>
     <tr>
       <th>4</th>
@@ -131,9 +201,24 @@ df.head()
       <td>0.2</td>
       <td>1.0</td>
       <td>0.0</td>
+      <td>0.0</td>
+      <td>0.20</td>
+      <td>0.800000</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.800000</td>
+      <td>0.400000</td>
+      <td>0.400000</td>
+      <td>0.600000</td>
+      <td>0.600000</td>
+      <td>0.0</td>
+      <td>0.8</td>
+      <td>0.0</td>
+      <td>0.400000</td>
     </tr>
   </tbody>
 </table>
+<p>5 rows × 30 columns</p>
 </div>
 
 
@@ -516,6 +601,53 @@ plot("per_arm", "softmax", "dynamic")
     
 ![png](12_modular_files/12_modular_26_0.png)
     
+
+
+## Speed/Accuracy Tradeoffs
+
+We can pick the best performing bandit by plotting a scatter chart of accuracy against elapsed time. In short, we want the bandit to be in the top left quadrant (short prediction time, but highest accuracy).
+
+
+```python
+import json
+
+with open("contextual_bandit.json", "r") as f:
+    data = json.load(f)
+```
+
+
+```python
+%matplotlib inline
+import pandas as pd
+
+df = pd.DataFrame(data).T
+x, y = "elapsed_time", "total_reward"
+df[y] /= N
+# Less than 2.5 seconds, but more than half the rewards.
+df = df[(df[x] < 2.5) & (df[y] > 0.5)]
+ax = df.plot.scatter(x=x, y=y, figsize=(16, 12))
+
+# Add text to each point
+for _, row in df.iterrows():
+    ax.text(row[x], row[y], row.name, fontsize=12)
+```
+
+
+    
+![png](12_modular_files/12_modular_29_0.png)
+    
+
+
+
+```python
+x, y
+```
+
+
+
+
+    ('elapsed_time', 'total_reward')
+
 
 
 
