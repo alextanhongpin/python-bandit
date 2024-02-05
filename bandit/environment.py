@@ -58,3 +58,23 @@ def feature_interaction(state: dict, action: int) -> np.ndarray:
     for kvs in product(state.items(), [("action", action)]):
         features.append("^".join([f"{k}:{v}" for k, v in kvs]))
     return np.array(features)
+
+
+def one_hot_encode(state: dict, action: int) -> np.ndarray:
+    X_users = np.zeros(len(users))
+    if "user" in state:
+        X_users[users.index(state["user"])] = 1
+
+    X_tod = np.zeros(len(times_of_day))
+    if "time_of_day" in state:
+        X_tod[times_of_day.index(state["time_of_day"])] = 1
+
+    X_actions = np.zeros(len(actions))
+    if action >= 0:
+        X_actions[action] = 1
+
+    # Ensure that the values are not entirely 0.
+    return (
+        np.array(list(np.concatenate([X_users, X_tod, X_actions])))
+        + np.random.random() / 100.0
+    )

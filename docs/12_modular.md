@@ -19,7 +19,15 @@ from bandit.utils import snapshot
 sns.set_theme()
 ```
 
-    /var/folders/7m/74_ct3hx33d878n626w1wxyc0000gn/T/ipykernel_84348/1555042788.py:11: TqdmExperimentalWarning: Using `tqdm.autonotebook.tqdm` in notebook mode. Use `tqdm.tqdm` instead to force console mode (e.g. in jupyter console)
+    /var/folders/7m/74_ct3hx33d878n626w1wxyc0000gn/T/ipykernel_95461/1555042788.py:6: DeprecationWarning: 
+    Pyarrow will become a required dependency of pandas in the next major release of pandas (pandas 3.0),
+    (to allow more performant data types, such as the Arrow string type, and better interoperability with other libraries)
+    but was not found to be installed on your system.
+    If this would cause problems for you,
+    please provide us feedback at https://github.com/pandas-dev/pandas/issues/54466
+            
+      import pandas as pd
+    /var/folders/7m/74_ct3hx33d878n626w1wxyc0000gn/T/ipykernel_95461/1555042788.py:11: TqdmWarning: IProgress not found. Please update jupyter and ipywidgets. See https://ipywidgets.readthedocs.io/en/stable/user_install.html
       from tqdm.autonotebook import tqdm
 
 
@@ -83,16 +91,16 @@ df.head()
       <th>decision_tree_regressor_per_arm__e_greedy_eps_0.1</th>
       <th>decision_tree_regressor_per_arm__softmax_tau_0.2</th>
       <th>...</th>
-      <th>decision_tree_regressor_m_a_b__dynamic__e_greedy_eps_0.1</th>
-      <th>decision_tree_regressor_m_a_b__dynamic__softmax_tau_0.2</th>
-      <th>m_l_p_regressor_m_a_b__dynamic__e_greedy_eps_0.1</th>
-      <th>m_l_p_regressor_m_a_b__dynamic__softmax_tau_0.2</th>
-      <th>logistic_regression_per_arm__dynamic__e_greedy_eps_0.1</th>
-      <th>logistic_regression_per_arm__dynamic__softmax_tau_0.2</th>
-      <th>decision_tree_regressor_per_arm__dynamic__e_greedy_eps_0.1</th>
-      <th>decision_tree_regressor_per_arm__dynamic__softmax_tau_0.2</th>
-      <th>m_l_p_regressor_per_arm__dynamic__e_greedy_eps_0.1</th>
-      <th>m_l_p_regressor_per_arm__dynamic__softmax_tau_0.2</th>
+      <th>m_l_p_regressor_m_a_b__e_greedy_eps_0.0</th>
+      <th>logistic_regression_per_arm__e_greedy_eps_0.0</th>
+      <th>decision_tree_regressor_per_arm__e_greedy_eps_0.0</th>
+      <th>m_l_p_regressor_per_arm__e_greedy_eps_0.0</th>
+      <th>logistic_regression_per_arm__dynamic__e_greedy_eps_0.0</th>
+      <th>decision_tree_regressor_per_arm__dynamic__e_greedy_eps_0.0</th>
+      <th>m_l_p_regressor_per_arm__dynamic__e_greedy_eps_0.0</th>
+      <th>logistic_regression_m_a_b__dynamic__e_greedy_eps_0.0</th>
+      <th>decision_tree_regressor_m_a_b__dynamic__e_greedy_eps_0.0</th>
+      <th>m_l_p_regressor_m_a_b__dynamic__e_greedy_eps_0.0</th>
     </tr>
   </thead>
   <tbody>
@@ -109,15 +117,15 @@ df.head()
       <td>0.00</td>
       <td>0.000000</td>
       <td>...</td>
-      <td>0.0</td>
-      <td>1.000000</td>
-      <td>0.000000</td>
-      <td>0.000000</td>
-      <td>1.000000</td>
       <td>0.000000</td>
       <td>0.0</td>
-      <td>1.0</td>
       <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
       <td>0.000000</td>
     </tr>
     <tr>
@@ -133,16 +141,16 @@ df.head()
       <td>0.00</td>
       <td>0.500000</td>
       <td>...</td>
-      <td>0.0</td>
-      <td>1.000000</td>
       <td>0.000000</td>
-      <td>0.500000</td>
-      <td>0.500000</td>
-      <td>0.500000</td>
       <td>0.0</td>
-      <td>1.0</td>
       <td>0.0</td>
-      <td>0.500000</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
     </tr>
     <tr>
       <th>2</th>
@@ -157,15 +165,15 @@ df.head()
       <td>0.00</td>
       <td>0.666667</td>
       <td>...</td>
+      <td>0.333333</td>
       <td>0.0</td>
-      <td>0.666667</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
       <td>0.333333</td>
       <td>0.333333</td>
-      <td>0.333333</td>
-      <td>0.666667</td>
-      <td>0.0</td>
-      <td>1.0</td>
-      <td>0.0</td>
       <td>0.333333</td>
     </tr>
     <tr>
@@ -181,16 +189,16 @@ df.head()
       <td>0.25</td>
       <td>0.750000</td>
       <td>...</td>
-      <td>0.0</td>
-      <td>0.750000</td>
       <td>0.250000</td>
-      <td>0.500000</td>
-      <td>0.500000</td>
-      <td>0.750000</td>
       <td>0.0</td>
-      <td>1.0</td>
       <td>0.0</td>
-      <td>0.500000</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.250000</td>
+      <td>0.250000</td>
+      <td>0.250000</td>
     </tr>
     <tr>
       <th>4</th>
@@ -205,20 +213,20 @@ df.head()
       <td>0.20</td>
       <td>0.800000</td>
       <td>...</td>
-      <td>0.0</td>
-      <td>0.800000</td>
       <td>0.400000</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.2</td>
+      <td>0.0</td>
+      <td>0.200000</td>
       <td>0.400000</td>
-      <td>0.600000</td>
-      <td>0.600000</td>
-      <td>0.0</td>
-      <td>0.8</td>
-      <td>0.0</td>
       <td>0.400000</td>
     </tr>
   </tbody>
 </table>
-<p>5 rows × 30 columns</p>
+<p>5 rows × 42 columns</p>
 </div>
 
 
@@ -264,7 +272,7 @@ models = [
     MLPRegressor(random_state=42),
 ]
 policies = [
-    EGreedy(epsilon=0.1),
+    EGreedy(epsilon=0.0),
     Softmax(tau=0.2),
 ]
 
@@ -290,11 +298,11 @@ for model, policy in product(models, policies):
     df.to_csv(file_name, index=False)
 ```
 
-    skipping logistic_regression_m_a_b__e_greedy_eps_0.1
+    skipping logistic_regression_m_a_b__e_greedy_eps_0.0
     skipping logistic_regression_m_a_b__softmax_tau_0.2
-    skipping decision_tree_regressor_m_a_b__e_greedy_eps_0.1
+    skipping decision_tree_regressor_m_a_b__e_greedy_eps_0.0
     skipping decision_tree_regressor_m_a_b__softmax_tau_0.2
-    skipping m_l_p_regressor_m_a_b__e_greedy_eps_0.1
+    skipping m_l_p_regressor_m_a_b__e_greedy_eps_0.0
     skipping m_l_p_regressor_m_a_b__softmax_tau_0.2
 
 
@@ -308,7 +316,7 @@ models = [
     [MLPRegressor(random_state=42) for _ in range(n_arms)],
 ]
 policies = [
-    EGreedy(epsilon=0.1),
+    EGreedy(epsilon=0.0),
     Softmax(tau=0.2),
 ]
 
@@ -335,11 +343,11 @@ for models, policy in product(models, policies):
     df.to_csv(file_name, index=False)
 ```
 
-    skipping logistic_regression_per_arm__e_greedy_eps_0.1
+    skipping logistic_regression_per_arm__e_greedy_eps_0.0
     skipping logistic_regression_per_arm__softmax_tau_0.2
-    skipping decision_tree_regressor_per_arm__e_greedy_eps_0.1
+    skipping decision_tree_regressor_per_arm__e_greedy_eps_0.0
     skipping decision_tree_regressor_per_arm__softmax_tau_0.2
-    skipping m_l_p_regressor_per_arm__e_greedy_eps_0.1
+    skipping m_l_p_regressor_per_arm__e_greedy_eps_0.0
     skipping m_l_p_regressor_per_arm__softmax_tau_0.2
 
 
@@ -353,7 +361,7 @@ models = [
     MLPRegressor(random_state=42),
 ]
 policies = [
-    EGreedy(epsilon=0.1),
+    EGreedy(epsilon=0.0),
     Softmax(tau=0.2),
 ]
 
@@ -381,46 +389,12 @@ for model, policy in product(models, policies):
     df.to_csv(file_name, index=False)
 ```
 
-    Running logistic_regression_m_a_b__dynamic__e_greedy_eps_0.1
-
-
-
-      0%|          | 0/1000 [00:00<?, ?it/s]
-
-
-    Running logistic_regression_m_a_b__dynamic__softmax_tau_0.2
-
-
-
-      0%|          | 0/1000 [00:00<?, ?it/s]
-
-
-    Running decision_tree_regressor_m_a_b__dynamic__e_greedy_eps_0.1
-
-
-
-      0%|          | 0/1000 [00:00<?, ?it/s]
-
-
-    Running decision_tree_regressor_m_a_b__dynamic__softmax_tau_0.2
-
-
-
-      0%|          | 0/1000 [00:00<?, ?it/s]
-
-
-    Running m_l_p_regressor_m_a_b__dynamic__e_greedy_eps_0.1
-
-
-
-      0%|          | 0/1000 [00:00<?, ?it/s]
-
-
-    Running m_l_p_regressor_m_a_b__dynamic__softmax_tau_0.2
-
-
-
-      0%|          | 0/1000 [00:00<?, ?it/s]
+    skipping logistic_regression_m_a_b__dynamic__e_greedy_eps_0.0
+    skipping logistic_regression_m_a_b__dynamic__softmax_tau_0.2
+    skipping decision_tree_regressor_m_a_b__dynamic__e_greedy_eps_0.0
+    skipping decision_tree_regressor_m_a_b__dynamic__softmax_tau_0.2
+    skipping m_l_p_regressor_m_a_b__dynamic__e_greedy_eps_0.0
+    skipping m_l_p_regressor_m_a_b__dynamic__softmax_tau_0.2
 
 
 ## Setting up Dynamic PerArm Contextual Bandit
@@ -433,7 +407,7 @@ models = [
     [MLPRegressor(random_state=42) for _ in range(n_arms)],
 ]
 policies = [
-    EGreedy(epsilon=0.1),
+    EGreedy(epsilon=0.0),
     Softmax(tau=0.2),
 ]
 
@@ -462,46 +436,12 @@ for models, policy in product(models, policies):
     df.to_csv(file_name, index=False)
 ```
 
-    Running logistic_regression_per_arm__dynamic__e_greedy_eps_0.1
-
-
-
-      0%|          | 0/1000 [00:00<?, ?it/s]
-
-
-    Running logistic_regression_per_arm__dynamic__softmax_tau_0.2
-
-
-
-      0%|          | 0/1000 [00:00<?, ?it/s]
-
-
-    Running decision_tree_regressor_per_arm__dynamic__e_greedy_eps_0.1
-
-
-
-      0%|          | 0/1000 [00:00<?, ?it/s]
-
-
-    Running decision_tree_regressor_per_arm__dynamic__softmax_tau_0.2
-
-
-
-      0%|          | 0/1000 [00:00<?, ?it/s]
-
-
-    Running m_l_p_regressor_per_arm__dynamic__e_greedy_eps_0.1
-
-
-
-      0%|          | 0/1000 [00:00<?, ?it/s]
-
-
-    Running m_l_p_regressor_per_arm__dynamic__softmax_tau_0.2
-
-
-
-      0%|          | 0/1000 [00:00<?, ?it/s]
+    skipping logistic_regression_per_arm__dynamic__e_greedy_eps_0.0
+    skipping logistic_regression_per_arm__dynamic__softmax_tau_0.2
+    skipping decision_tree_regressor_per_arm__dynamic__e_greedy_eps_0.0
+    skipping decision_tree_regressor_per_arm__dynamic__softmax_tau_0.2
+    skipping m_l_p_regressor_per_arm__dynamic__e_greedy_eps_0.0
+    skipping m_l_p_regressor_per_arm__dynamic__softmax_tau_0.2
 
 
 
@@ -603,6 +543,19 @@ plot("per_arm", "softmax", "dynamic")
     
 
 
+## E-Greedy
+
+
+```python
+plot("per_arm", "e_greedy", "m_l_p")
+```
+
+
+    
+![png](12_modular_files/12_modular_28_0.png)
+    
+
+
 ## Speed/Accuracy Tradeoffs
 
 We can pick the best performing bandit by plotting a scatter chart of accuracy against elapsed time. In short, we want the bandit to be in the top left quadrant (short prediction time, but highest accuracy).
@@ -634,7 +587,7 @@ for _, row in df.iterrows():
 
 
     
-![png](12_modular_files/12_modular_29_0.png)
+![png](12_modular_files/12_modular_31_0.png)
     
 
 
