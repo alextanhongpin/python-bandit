@@ -55,6 +55,8 @@ def feature_interaction(state: dict, action: int) -> np.ndarray:
     We can see that in action below.
     """
     features = []
+    features.append(f"action:{action}")
+    features.extend([f"{k}:{v}" for k, v in state.items()])
     for kvs in product(state.items(), [("action", action)]):
         features.append("^".join([f"{k}:{v}" for k, v in kvs]))
     return np.array(features)
@@ -73,8 +75,4 @@ def one_hot_encode(state: dict, action: int) -> np.ndarray:
     if action >= 0:
         X_actions[action] = 1
 
-    # Ensure that the values are not entirely 0.
-    return (
-        np.array(list(np.concatenate([X_users, X_tod, X_actions])))
-        + np.random.random() / 100.0
-    )
+    return np.array(list(np.concatenate([X_users, X_tod, X_actions])))
