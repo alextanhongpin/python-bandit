@@ -163,7 +163,7 @@ class NeuralPolicyBandit(BaseBandit):
         self.model = self.create_model()
         self.n_arms = n_arms
         self.preprocess = preprocess
-        self.softmax = Softmax().softmax
+        self.softmax = Softmax(tau=0.2).softmax
 
     def update(self, state: dict, action: int, reward: int):
         X = np.array(
@@ -199,7 +199,8 @@ class NeuralPolicyBandit(BaseBandit):
         # And when the reward is -tive, there is no way to pass the meaning to
         # the one hot encoded y value.
         # Instead, we compute the MSE for each prediction value individually.
-        model.compile(loss="mse", optimizer="adam")
+        # model.compile(loss="mse", optimizer="adam")
+        model.compile(loss="categorical_crossentropy", optimizer="adam")
         return model
 
     @staticmethod
