@@ -1,10 +1,8 @@
 import numpy as np
 
-import tensorflow as tf
 from tensorflow.keras import Sequential
 from tensorflow.keras.layers import Input, Dense
 
-# from tensorflow.keras.optimizers import SGD
 from sklearn.feature_extraction import FeatureHasher
 from .environment import feature_interaction
 from .base import BaseBandit
@@ -14,12 +12,11 @@ def create_model():
     model = Sequential(
         # 11 features that are one-hot-encoded.
         [
-            Input(shape=(10,)),
-            Dense(32, activation="relu"),
-            # Dropout(0.1),
-            Dense(32, activation="relu"),
-            # Dropout(0.1),
-            Dense(1),
+            Input(shape=(8,)),
+            Dense(32, activation="elu"),
+            Dense(32, activation="elu"),
+            Dense(32, activation="elu"),
+            Dense(1, activation="sigmoid"),
         ]
     )
     # optimizer = SGD(learning_rate=0.001)
@@ -44,7 +41,7 @@ class NeuralBandit(BaseBandit):
         n_arms,
         *,
         model=create_model(),
-        preprocess=FeatureHasher(10, input_type="string", alternate_sign=True),
+        preprocess=FeatureHasher(8, input_type="string", alternate_sign=True),
         batch=20,
     ):
         super().__init__(n_arms)
@@ -57,6 +54,7 @@ class NeuralBandit(BaseBandit):
 
     def update(self, state: dict, action: int, reward: int):
         if self.batch == 1:
+            # return self.update_all(state, action, reward)
             return self.single_update(state, action, reward)
 
         self.rewards.append(reward)
@@ -74,19 +72,33 @@ class NeuralBandit(BaseBandit):
             # while keras3.0 is only available for tensorflow version 2.16+.
             return self.model.fit(X, y)
 
+    def update_all(self, state: dict, action: int, reward: int):
+        """will punishing other arms help? seems like nope"""
+        X = []
+        y = []
+        for i in range(self.n_arms):
+            X.append(feature_interaction(state, i))
+            y.append(reward if i == action else 0)
+        X = np.array(self.preprocess.transform(X).toarray())
+        y = np.array(y)
+        return self.model.train_on_batch(X, y)
+
     def single_update(self, state: dict, action: int, reward: int):
         X = np.array(
             self.preprocess.transform([feature_interaction(state, action)]).toarray()
         )
         y = np.array([reward])
-        return self.model.train_on_batch(X, y)
+        return self.model.fit(X, y, epochs=1, verbose=0)
+        # return self.model.train_on_batch(X, y)
 
     def pull(self, state: dict) -> np.ndarray:
-        X = self.preprocess.transform(
-            [feature_interaction(state, i) for i in range(self.n_arms)]
+        X = np.array(
+            self.preprocess.transform(
+                [feature_interaction(state, i) for i in range(self.n_arms)]
+            ).toarray()
         )
-        # X = np.array([feature_interaction(state, i) for i in range(self.n_arms)])
-        return self.model.predict(X, verbose=0)
+        # Predict the action-value.
+        return self.model.predict(X, verbose=0).ravel()
 
 
 class NeuralPerArmBandit(BaseBandit):
@@ -95,7 +107,7 @@ class NeuralPerArmBandit(BaseBandit):
         *,
         models=create_models(7),
         batch=20,
-        preprocess=FeatureHasher(10, input_type="string", alternate_sign=True),
+        preprocess=FeatureHasher(8, input_type="string", alternate_sign=True),
     ):
         n_arms = len(models)
         super().__init__(n_arms)
@@ -132,4 +144,6 @@ class NeuralPerArmBandit(BaseBandit):
     def pull(self, state: dict) -> np.ndarray:
         X = self.preprocess.transform([feature_interaction(state, -1)])
         # X = np.array([feature_interaction(state, -1)])
-        return np.array([model.predict(X, verbose=0)[0] for model in self.models])
+        return np.array(
+            [model.predict(X, verbose=0).ravel()[0] for model in self.models]
+        )

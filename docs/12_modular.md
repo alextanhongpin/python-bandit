@@ -19,7 +19,7 @@ from bandit.utils import snapshot
 sns.set_theme()
 ```
 
-    /var/folders/7m/74_ct3hx33d878n626w1wxyc0000gn/T/ipykernel_95461/1555042788.py:6: DeprecationWarning: 
+    /var/folders/7m/74_ct3hx33d878n626w1wxyc0000gn/T/ipykernel_38255/1555042788.py:6: DeprecationWarning: 
     Pyarrow will become a required dependency of pandas in the next major release of pandas (pandas 3.0),
     (to allow more performant data types, such as the Arrow string type, and better interoperability with other libraries)
     but was not found to be installed on your system.
@@ -27,7 +27,7 @@ sns.set_theme()
     please provide us feedback at https://github.com/pandas-dev/pandas/issues/54466
             
       import pandas as pd
-    /var/folders/7m/74_ct3hx33d878n626w1wxyc0000gn/T/ipykernel_95461/1555042788.py:11: TqdmWarning: IProgress not found. Please update jupyter and ipywidgets. See https://ipywidgets.readthedocs.io/en/stable/user_install.html
+    /var/folders/7m/74_ct3hx33d878n626w1wxyc0000gn/T/ipykernel_38255/1555042788.py:11: TqdmWarning: IProgress not found. Please update jupyter and ipywidgets. See https://ipywidgets.readthedocs.io/en/stable/user_install.html
       from tqdm.autonotebook import tqdm
 
 
@@ -80,153 +80,26 @@ df.head()
   <thead>
     <tr style="text-align: right;">
       <th></th>
-      <th>logistic_regression__e_greedy_eps_0.1</th>
-      <th>logistic_regression__softmax_tau_0.2</th>
-      <th>decision_tree_regressor__e_greedy_eps_0.1</th>
-      <th>decision_tree_regressor__softmax_tau_0.2</th>
-      <th>m_l_p_regressor__e_greedy_eps_0.1</th>
-      <th>m_l_p_regressor__softmax_tau_0.2</th>
-      <th>logistic_regression_per_arm__e_greedy_eps_0.1</th>
-      <th>logistic_regression_per_arm__softmax_tau_0.2</th>
-      <th>decision_tree_regressor_per_arm__e_greedy_eps_0.1</th>
-      <th>decision_tree_regressor_per_arm__softmax_tau_0.2</th>
-      <th>...</th>
-      <th>m_l_p_regressor_m_a_b__e_greedy_eps_0.0</th>
-      <th>logistic_regression_per_arm__e_greedy_eps_0.0</th>
-      <th>decision_tree_regressor_per_arm__e_greedy_eps_0.0</th>
-      <th>m_l_p_regressor_per_arm__e_greedy_eps_0.0</th>
-      <th>logistic_regression_per_arm__dynamic__e_greedy_eps_0.0</th>
-      <th>decision_tree_regressor_per_arm__dynamic__e_greedy_eps_0.0</th>
-      <th>m_l_p_regressor_per_arm__dynamic__e_greedy_eps_0.0</th>
-      <th>logistic_regression_m_a_b__dynamic__e_greedy_eps_0.0</th>
-      <th>decision_tree_regressor_m_a_b__dynamic__e_greedy_eps_0.0</th>
-      <th>m_l_p_regressor_m_a_b__dynamic__e_greedy_eps_0.0</th>
     </tr>
   </thead>
   <tbody>
     <tr>
       <th>0</th>
-      <td>0.0</td>
-      <td>1.0</td>
-      <td>0.0</td>
-      <td>1.0</td>
-      <td>0.0</td>
-      <td>1.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.00</td>
-      <td>0.000000</td>
-      <td>...</td>
-      <td>0.000000</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.000000</td>
-      <td>0.000000</td>
-      <td>0.000000</td>
     </tr>
     <tr>
       <th>1</th>
-      <td>0.0</td>
-      <td>1.0</td>
-      <td>0.0</td>
-      <td>1.0</td>
-      <td>0.0</td>
-      <td>1.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.00</td>
-      <td>0.500000</td>
-      <td>...</td>
-      <td>0.000000</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.000000</td>
-      <td>0.000000</td>
-      <td>0.000000</td>
     </tr>
     <tr>
       <th>2</th>
-      <td>0.0</td>
-      <td>1.0</td>
-      <td>0.0</td>
-      <td>1.0</td>
-      <td>0.0</td>
-      <td>1.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.00</td>
-      <td>0.666667</td>
-      <td>...</td>
-      <td>0.333333</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.333333</td>
-      <td>0.333333</td>
-      <td>0.333333</td>
     </tr>
     <tr>
       <th>3</th>
-      <td>0.0</td>
-      <td>1.0</td>
-      <td>0.0</td>
-      <td>1.0</td>
-      <td>0.0</td>
-      <td>1.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.25</td>
-      <td>0.750000</td>
-      <td>...</td>
-      <td>0.250000</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.250000</td>
-      <td>0.250000</td>
-      <td>0.250000</td>
     </tr>
     <tr>
       <th>4</th>
-      <td>0.0</td>
-      <td>1.0</td>
-      <td>0.0</td>
-      <td>1.0</td>
-      <td>0.2</td>
-      <td>1.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.20</td>
-      <td>0.800000</td>
-      <td>...</td>
-      <td>0.400000</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.2</td>
-      <td>0.0</td>
-      <td>0.200000</td>
-      <td>0.400000</td>
-      <td>0.400000</td>
     </tr>
   </tbody>
 </table>
-<p>5 rows × 42 columns</p>
 </div>
 
 
@@ -298,12 +171,40 @@ for model, policy in product(models, policies):
     df.to_csv(file_name, index=False)
 ```
 
-    skipping logistic_regression_m_a_b__e_greedy_eps_0.0
-    skipping logistic_regression_m_a_b__softmax_tau_0.2
-    skipping decision_tree_regressor_m_a_b__e_greedy_eps_0.0
-    skipping decision_tree_regressor_m_a_b__softmax_tau_0.2
-    skipping m_l_p_regressor_m_a_b__e_greedy_eps_0.0
-    skipping m_l_p_regressor_m_a_b__softmax_tau_0.2
+    Running logistic_regression_m_a_b__e_greedy_eps_0.0
+
+
+    100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1000/1000 [00:02<00:00, 490.78it/s]
+
+
+    Running logistic_regression_m_a_b__softmax_tau_0.2
+
+
+    100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1000/1000 [00:01<00:00, 676.56it/s]
+
+
+    Running decision_tree_regressor_m_a_b__e_greedy_eps_0.0
+
+
+    100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1000/1000 [00:01<00:00, 587.38it/s]
+
+
+    Running decision_tree_regressor_m_a_b__softmax_tau_0.2
+
+
+    100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1000/1000 [00:00<00:00, 1279.19it/s]
+
+
+    Running m_l_p_regressor_m_a_b__e_greedy_eps_0.0
+
+
+    100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1000/1000 [00:02<00:00, 387.80it/s]
+
+
+    Running m_l_p_regressor_m_a_b__softmax_tau_0.2
+
+
+    100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1000/1000 [00:02<00:00, 371.10it/s]
 
 
 ## Setting up PerArm Contextual Bandit
@@ -343,12 +244,40 @@ for models, policy in product(models, policies):
     df.to_csv(file_name, index=False)
 ```
 
-    skipping logistic_regression_per_arm__e_greedy_eps_0.0
-    skipping logistic_regression_per_arm__softmax_tau_0.2
-    skipping decision_tree_regressor_per_arm__e_greedy_eps_0.0
-    skipping decision_tree_regressor_per_arm__softmax_tau_0.2
-    skipping m_l_p_regressor_per_arm__e_greedy_eps_0.0
-    skipping m_l_p_regressor_per_arm__softmax_tau_0.2
+    Running logistic_regression_per_arm__e_greedy_eps_0.0
+
+
+    100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1000/1000 [00:02<00:00, 346.66it/s]
+
+
+    Running logistic_regression_per_arm__softmax_tau_0.2
+
+
+    100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1000/1000 [00:02<00:00, 353.88it/s]
+
+
+    Running decision_tree_regressor_per_arm__e_greedy_eps_0.0
+
+
+    100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1000/1000 [00:03<00:00, 290.19it/s]
+
+
+    Running decision_tree_regressor_per_arm__softmax_tau_0.2
+
+
+    100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1000/1000 [00:03<00:00, 272.19it/s]
+
+
+    Running m_l_p_regressor_per_arm__e_greedy_eps_0.0
+
+
+    100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1000/1000 [00:04<00:00, 234.05it/s]
+
+
+    Running m_l_p_regressor_per_arm__softmax_tau_0.2
+
+
+    100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1000/1000 [00:04<00:00, 242.70it/s]
 
 
 ## Setting up Dynamic MAB Contextual Bandit
@@ -389,12 +318,40 @@ for model, policy in product(models, policies):
     df.to_csv(file_name, index=False)
 ```
 
-    skipping logistic_regression_m_a_b__dynamic__e_greedy_eps_0.0
-    skipping logistic_regression_m_a_b__dynamic__softmax_tau_0.2
-    skipping decision_tree_regressor_m_a_b__dynamic__e_greedy_eps_0.0
-    skipping decision_tree_regressor_m_a_b__dynamic__softmax_tau_0.2
-    skipping m_l_p_regressor_m_a_b__dynamic__e_greedy_eps_0.0
-    skipping m_l_p_regressor_m_a_b__dynamic__softmax_tau_0.2
+    Running logistic_regression_m_a_b__dynamic__e_greedy_eps_0.0
+
+
+    100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1000/1000 [00:01<00:00, 732.57it/s]
+
+
+    Running logistic_regression_m_a_b__dynamic__softmax_tau_0.2
+
+
+    100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1000/1000 [00:01<00:00, 639.99it/s]
+
+
+    Running decision_tree_regressor_m_a_b__dynamic__e_greedy_eps_0.0
+
+
+    100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1000/1000 [00:01<00:00, 949.90it/s]
+
+
+    Running decision_tree_regressor_m_a_b__dynamic__softmax_tau_0.2
+
+
+    100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1000/1000 [00:00<00:00, 1005.30it/s]
+
+
+    Running m_l_p_regressor_m_a_b__dynamic__e_greedy_eps_0.0
+
+
+    100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1000/1000 [00:02<00:00, 427.25it/s]
+
+
+    Running m_l_p_regressor_m_a_b__dynamic__softmax_tau_0.2
+
+
+    100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1000/1000 [00:02<00:00, 362.12it/s]
 
 
 ## Setting up Dynamic PerArm Contextual Bandit
@@ -436,12 +393,40 @@ for models, policy in product(models, policies):
     df.to_csv(file_name, index=False)
 ```
 
-    skipping logistic_regression_per_arm__dynamic__e_greedy_eps_0.0
-    skipping logistic_regression_per_arm__dynamic__softmax_tau_0.2
-    skipping decision_tree_regressor_per_arm__dynamic__e_greedy_eps_0.0
-    skipping decision_tree_regressor_per_arm__dynamic__softmax_tau_0.2
-    skipping m_l_p_regressor_per_arm__dynamic__e_greedy_eps_0.0
-    skipping m_l_p_regressor_per_arm__dynamic__softmax_tau_0.2
+    Running logistic_regression_per_arm__dynamic__e_greedy_eps_0.0
+
+
+    100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1000/1000 [00:03<00:00, 266.52it/s]
+
+
+    Running logistic_regression_per_arm__dynamic__softmax_tau_0.2
+
+
+    100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1000/1000 [00:02<00:00, 377.50it/s]
+
+
+    Running decision_tree_regressor_per_arm__dynamic__e_greedy_eps_0.0
+
+
+    100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1000/1000 [00:02<00:00, 383.43it/s]
+
+
+    Running decision_tree_regressor_per_arm__dynamic__softmax_tau_0.2
+
+
+    100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1000/1000 [00:03<00:00, 302.70it/s]
+
+
+    Running m_l_p_regressor_per_arm__dynamic__e_greedy_eps_0.0
+
+
+    100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1000/1000 [00:04<00:00, 228.75it/s]
+
+
+    Running m_l_p_regressor_per_arm__dynamic__softmax_tau_0.2
+
+
+    100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1000/1000 [00:05<00:00, 188.84it/s]
 
 
 

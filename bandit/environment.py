@@ -62,7 +62,7 @@ def feature_interaction(state: dict, action: int) -> np.ndarray:
     return np.array(features)
 
 
-def one_hot_encode(state: dict, action: int) -> np.ndarray:
+def one_hot_encode(state: dict) -> np.ndarray:
     X_users = np.zeros(len(users))
     if "user" in state:
         X_users[users.index(state["user"])] = 1
@@ -71,8 +71,4 @@ def one_hot_encode(state: dict, action: int) -> np.ndarray:
     if "time_of_day" in state:
         X_tod[times_of_day.index(state["time_of_day"])] = 1
 
-    X_actions = np.zeros(len(actions))
-    if action >= 0:
-        X_actions[action] = 1
-
-    return np.array(list(np.concatenate([X_users, X_tod, X_actions])))
+    return np.array(list(np.concatenate([X_users, X_tod])))
