@@ -10,24 +10,15 @@ from tqdm.autonotebook import tqdm
 
 import bandit.environment as env
 from bandit.policy import EGreedy, Softmax
-from bandit.tensorflow import NeuralBandit, NeuralPerArmBandit, create_models
+from bandit.tensorflow import (
+    NeuralBandit,
+    NeuralPerArmBandit,
+    NeuralPolicyBandit,
+    create_models,
+)
 
 sns.set_theme()
 ```
-
-    /var/folders/7m/74_ct3hx33d878n626w1wxyc0000gn/T/ipykernel_60854/1213398807.py:5: DeprecationWarning: 
-    Pyarrow will become a required dependency of pandas in the next major release of pandas (pandas 3.0),
-    (to allow more performant data types, such as the Arrow string type, and better interoperability with other libraries)
-    but was not found to be installed on your system.
-    If this would cause problems for you,
-    please provide us feedback at https://github.com/pandas-dev/pandas/issues/54466
-            
-      import pandas as pd
-    /var/folders/7m/74_ct3hx33d878n626w1wxyc0000gn/T/ipykernel_60854/1213398807.py:8: TqdmWarning: IProgress not found. Please update jupyter and ipywidgets. See https://ipywidgets.readthedocs.io/en/stable/user_install.html
-      from tqdm.autonotebook import tqdm
-    2024-02-06 13:36:09.853184: I tensorflow/core/platform/cpu_feature_guard.cc:182] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
-    To enable the following instructions: AVX2 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
-
 
 
 ```python
@@ -259,8 +250,6 @@ How about the pytorch version?
 ## Per-arm Bandit
 
 
-
-
 ```python
 policy = EGreedy(epsilon=0.0)
 bandit = NeuralPerArmBandit(batch=1, models=create_models(len(env.actions)))
@@ -303,7 +292,7 @@ plt.plot(range(N), avg_rewards)
 
 
     
-![png](14_keras_contextual_bandit_files/14_keras_contextual_bandit_19_1.png)
+![png](14_keras_contextual_bandit_files/14_keras_contextual_bandit_18_1.png)
     
 
 
@@ -323,6 +312,132 @@ debug_bandit(bandit)
     state({'user': 'Tom', 'time_of_day': 'afternoon'}): got politics (0), want music (2)
     encoded [[-1.  0.  1.  0.  1.  0. -1. -1.]]
     rewards [0.98 0.09 0.06 0.27 0.15 0.35 0.53], 0
+    
+
+
+## REINFORCE Policy - static
+
+
+```python
+N = 500
+policy = EGreedy(epsilon=0.0)
+bandit = NeuralPolicyBandit(n_arms=len(env.actions))
+
+avg_rewards, total_reward = run_simulation(bandit, policy, n=N, dynamic=False)
+```
+
+    100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 500/500 [01:05<00:00,  7.58it/s]
+
+
+
+```python
+total_reward
+```
+
+
+
+
+    360.0
+
+
+
+
+```python
+plt.plot(range(N), avg_rewards)
+```
+
+
+
+
+    [<matplotlib.lines.Line2D at 0x13ed98340>]
+
+
+
+
+    
+![png](14_keras_contextual_bandit_files/14_keras_contextual_bandit_23_1.png)
+    
+
+
+
+```python
+debug_bandit(bandit)
+```
+
+    0 politics
+    1 sports
+    2 music
+    3 food
+    4 finance
+    5 health
+    6 camping
+    
+
+
+## REINFORCE Policy - dynamic
+
+
+```python
+N = 500
+policy = EGreedy(epsilon=0.0)
+bandit = NeuralPolicyBandit(n_arms=len(env.actions))
+
+avg_rewards, total_reward = run_simulation(bandit, policy, n=N, dynamic=True)
+```
+
+    100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 500/500 [01:08<00:00,  7.27it/s]
+
+
+
+```python
+total_reward
+```
+
+
+
+
+    371.0
+
+
+
+
+```python
+plt.plot(range(N), avg_rewards)
+```
+
+
+
+
+    [<matplotlib.lines.Line2D at 0x13cc8fb50>]
+
+
+
+
+    
+![png](14_keras_contextual_bandit_files/14_keras_contextual_bandit_28_1.png)
+    
+
+
+
+```python
+debug_bandit(bandit)
+```
+
+    0 politics
+    1 sports
+    2 music
+    3 food
+    4 finance
+    5 health
+    6 camping
+    
+    state({'user': 'Tom', 'time_of_day': 'afternoon'}): got sports (1), want music (2)
+    encoded [[-1.  0.  1.  0.  1.  0. -1. -1.]]
+    rewards [0.   0.96 0.   0.01 0.01 0.01 0.01], 1
+    
+    state({'user': 'Anna', 'time_of_day': 'afternoon'}): got sports (1), want politics (0)
+    encoded [[-1.  0. -1.  0.  0.  0. -1.  0.]]
+    rewards [0. 1. 0. 0. 0. 0. 0.], 1
     
 
 

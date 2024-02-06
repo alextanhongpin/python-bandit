@@ -5,6 +5,7 @@ from tensorflow.keras.layers import Input, Dense
 
 from sklearn.feature_extraction import FeatureHasher
 from .environment import feature_interaction
+from .policy import Softmax
 from .base import BaseBandit
 
 
@@ -88,8 +89,8 @@ class NeuralBandit(BaseBandit):
             self.preprocess.transform([feature_interaction(state, action)]).toarray()
         )
         y = np.array([reward])
-        return self.model.fit(X, y, epochs=1, verbose=0)
-        # return self.model.train_on_batch(X, y)
+        # return self.model.fit(X, y, epochs=1, verbose=0)
+        return self.model.train_on_batch(X, y)
 
     def pull(self, state: dict) -> np.ndarray:
         X = np.array(
@@ -98,7 +99,7 @@ class NeuralBandit(BaseBandit):
             ).toarray()
         )
         # Predict the action-value.
-        return self.model.predict(X, verbose=0).ravel()
+        return self.model.predict(X, verbose=0).flatten()
 
 
 class NeuralPerArmBandit(BaseBandit):
@@ -145,5 +146,63 @@ class NeuralPerArmBandit(BaseBandit):
         X = self.preprocess.transform([feature_interaction(state, -1)])
         # X = np.array([feature_interaction(state, -1)])
         return np.array(
-            [model.predict(X, verbose=0).ravel()[0] for model in self.models]
+            [model.predict(X, verbose=0).flatten()[0] for model in self.models]
         )
+
+
+class NeuralPolicyBandit(BaseBandit):
+    def __init__(
+        self,
+        /,
+        n_arms,
+        *,
+        preprocess=FeatureHasher(8, input_type="string", alternate_sign=True),
+        batch=20,
+    ):
+        super().__init__(n_arms)
+        self.model = self.create_model()
+        self.n_arms = n_arms
+        self.preprocess = preprocess
+        self.softmax = Softmax().softmax
+
+    def update(self, state: dict, action: int, reward: int):
+        X = np.array(
+            self.preprocess.transform([feature_interaction(state, 0)]).toarray()
+        )
+        action_probs = self.model.predict(X, verbose=0).flatten()
+        action_probs[action] += reward
+        y = self.softmax(action_probs)
+        # y = np.zeros(self.n_arms)
+        # y[action] = self.loss_fn(action_probs, action, reward)
+        y = np.array([y])
+        return self.model.train_on_batch(X, y)
+
+    def pull(self, state: dict) -> np.ndarray:
+        X = np.array(
+            self.preprocess.transform([feature_interaction(state, 0)]).toarray()
+        )
+        # Predict the action-value.
+        return self.model.predict(X, verbose=0).flatten()
+
+    def create_model(self):
+        model = Sequential(
+            [
+                Input((8)),
+                Dense(32, activation="relu"),
+                Dense(32, activation="relu"),
+                Dense(32, activation="relu"),
+                Dense(self.n_arms, activation="softmax"),
+            ]
+        )
+        # Why can't we use categorical cross entropy? Because we do not know
+        # which arm is the best
+        # And when the reward is -tive, there is no way to pass the meaning to
+        # the one hot encoded y value.
+        # Instead, we compute the MSE for each prediction value individually.
+        model.compile(loss="mse", optimizer="adam")
+        return model
+
+    @staticmethod
+    def loss_fn(action_probs, action, reward):
+        """based on REINFORCE policy"""
+        return -(reward * np.log(action_probs[action]))
