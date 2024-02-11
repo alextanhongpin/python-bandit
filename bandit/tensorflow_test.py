@@ -7,7 +7,7 @@ def test_neural_bandit():
     bandit = NeuralBandit(n_arms=n_arms)
     state = {"user": "Tom", "time_of_day": "morning"}
     rewards = bandit.pull(state)
-    assert rewards.shape == (n_arms, 1)
+    assert rewards.shape == (n_arms,)
 
     action = 1
     reward = 1
@@ -19,7 +19,7 @@ def test_neural_per_arm_bandit():
     bandit = NeuralPerArmBandit()
     state = {"user": "Tom", "time_of_day": "morning"}
     rewards = bandit.pull(state)
-    assert rewards.shape == (n_arms, 1)
+    assert rewards.shape == (n_arms,)
 
     action = 1
     reward = 1
