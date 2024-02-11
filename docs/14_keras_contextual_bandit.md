@@ -315,7 +315,7 @@ debug_bandit(bandit)
     
 
 
-## REINFORCE Policy - static
+## Softmax Policy - static
 
 
 ```python
@@ -326,7 +326,7 @@ bandit = NeuralPolicyBandit(n_arms=len(env.actions))
 avg_rewards, total_reward = run_simulation(bandit, policy, n=N, dynamic=False)
 ```
 
-    100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 500/500 [01:05<00:00,  7.58it/s]
+    100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 500/500 [01:10<00:00,  7.05it/s]
 
 
 
@@ -337,7 +337,7 @@ total_reward
 
 
 
-    360.0
+    387.0
 
 
 
@@ -349,7 +349,7 @@ plt.plot(range(N), avg_rewards)
 
 
 
-    [<matplotlib.lines.Line2D at 0x13ed98340>]
+    [<matplotlib.lines.Line2D at 0x13aebabf0>]
 
 
 
@@ -374,7 +374,7 @@ debug_bandit(bandit)
     
 
 
-## REINFORCE Policy - dynamic
+## Softmax Policy - dynamic
 
 
 ```python
@@ -385,7 +385,7 @@ bandit = NeuralPolicyBandit(n_arms=len(env.actions))
 avg_rewards, total_reward = run_simulation(bandit, policy, n=N, dynamic=True)
 ```
 
-    100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 500/500 [01:08<00:00,  7.27it/s]
+    100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 500/500 [01:09<00:00,  7.18it/s]
 
 
 
@@ -396,7 +396,7 @@ total_reward
 
 
 
-    371.0
+    330.0
 
 
 
@@ -408,7 +408,7 @@ plt.plot(range(N), avg_rewards)
 
 
 
-    [<matplotlib.lines.Line2D at 0x13cc8fb50>]
+    [<matplotlib.lines.Line2D at 0x1408c5810>]
 
 
 
@@ -433,7 +433,7 @@ debug_bandit(bandit)
     
     state({'user': 'Tom', 'time_of_day': 'afternoon'}): got sports (1), want music (2)
     encoded [[-1.  0.  1.  0.  1.  0. -1. -1.]]
-    rewards [0.   0.96 0.   0.01 0.01 0.01 0.01], 1
+    rewards [0.02 0.97 0.   0.   0.   0.   0.  ], 1
     
     state({'user': 'Anna', 'time_of_day': 'afternoon'}): got sports (1), want politics (0)
     encoded [[-1.  0. -1.  0.  0.  0. -1.  0.]]

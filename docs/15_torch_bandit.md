@@ -10,10 +10,14 @@ from tqdm.autonotebook import tqdm
 
 import bandit.environment as env
 from bandit.policy import EGreedy, Softmax
-from bandit.torch import NeuralBandit, create_model
+from bandit.torch import NeuralBandit, NeuralPerArmBandit, create_model
 
 sns.set_theme()
 ```
+
+    /var/folders/7m/74_ct3hx33d878n626w1wxyc0000gn/T/ipykernel_90415/2096907171.py:8: TqdmExperimentalWarning: Using `tqdm.autonotebook.tqdm` in notebook mode. Use `tqdm.tqdm` instead to force console mode (e.g. in jupyter console)
+      from tqdm.autonotebook import tqdm
+
 
 
 ```python
@@ -66,7 +70,7 @@ total_reward
 
 
 
-    390.0
+    346.0
 
 
 
@@ -78,7 +82,7 @@ plt.plot(range(N), avg_rewards)
 
 
 
-    [<matplotlib.lines.Line2D at 0x12389b8e0>]
+    [<matplotlib.lines.Line2D at 0x120ed4c70>]
 
 
 
@@ -102,7 +106,7 @@ total_reward
 
 
 
-    256.0
+    170.0
 
 
 
@@ -114,7 +118,7 @@ plt.plot(range(N), avg_rewards)
 
 
 
-    [<matplotlib.lines.Line2D at 0x1239fe560>]
+    [<matplotlib.lines.Line2D at 0x1238fde10>]
 
 
 
@@ -124,7 +128,109 @@ plt.plot(range(N), avg_rewards)
     
 
 
+## Neural Per Arm Bandit - Static
+
 
 ```python
-
+bandit = NeuralPerArmBandit()
+avg_rewards, total_reward = run_simulation(bandit)
+total_reward
 ```
+
+
+      0%|          | 0/500 [00:00<?, ?it/s]
+
+
+
+
+
+    348.0
+
+
+
+
+```python
+plt.plot(range(N), avg_rewards)
+```
+
+
+
+
+    [<matplotlib.lines.Line2D at 0x12397b5e0>]
+
+
+
+
+    
+![png](15_torch_bandit_files/15_torch_bandit_9_1.png)
+    
+
+
+## Neural Per Arm Bandit - Dynamic
+
+
+```python
+bandit = NeuralPerArmBandit()
+avg_rewards, total_reward = run_simulation(bandit, dynamic=True)
+total_reward
+```
+
+
+      0%|          | 0/500 [00:00<?, ?it/s]
+
+
+
+
+
+    470.0
+
+
+
+
+```python
+plt.plot(range(N), avg_rewards)
+```
+
+
+
+
+    [<matplotlib.lines.Line2D at 0x123a09e70>]
+
+
+
+
+    
+![png](15_torch_bandit_files/15_torch_bandit_12_1.png)
+    
+
+
+
+```python
+bandit = NeuralBandit(n_arms=len(env.actions))
+
+# bandit = NeuralPerArmBandit()
+
+policy = EGreedy(epsilon=0.0)
+rng = np.random.RandomState(42)
+state = env.observe(rng)
+
+
+rewards = bandit.pull(state)
+print("rewards", rewards)
+
+action = policy(rewards)
+
+reward = env.get_cost(state, env.actions[action])
+print("action", action)
+print("reward", reward)
+
+# 3. Update the model.
+
+bandit.update(state, action, reward)
+```
+
+    rewards [-0.06754722  0.2109358  -0.13107799  0.06537426 -0.08250759 -0.00643894
+     -0.08250759]
+    action 1
+    reward -1.0
+
