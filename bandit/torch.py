@@ -66,12 +66,19 @@ class NeuralBandit(BaseBandit):
             self.rewards.append(reward)
             self.state_actions.append(feature_interaction(state, action))
             return
-        X = torch.Tensor(self.preprocess.transform(self.state_actions).toarray())
-        y = torch.Tensor(self.rewards)
-        loss = self.loss_fn(self.model(X), y)
-        self.optimizer.zero_grad()
-        loss.backward()
-        self.optimizer.step()
+        epochs = 5
+        for i in range(epochs):
+            indices = list(range(len(self.rewards)))
+            np.random.shuffle(indices)
+            X = torch.Tensor(self.preprocess.transform(self.state_actions).toarray())[
+                indices
+            ]
+            y_pred = self.model(X)
+            y = torch.Tensor(self.rewards)[indices]
+            loss = self.loss_fn(y_pred, y)
+            self.optimizer.zero_grad()
+            loss.backward()
+            self.optimizer.step()
         self.rewards = []
         self.state_actions = []
 

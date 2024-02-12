@@ -15,7 +15,7 @@ from bandit.torch import NeuralBandit, NeuralPerArmBandit, create_model
 sns.set_theme()
 ```
 
-    /var/folders/7m/74_ct3hx33d878n626w1wxyc0000gn/T/ipykernel_22375/2096907171.py:8: TqdmExperimentalWarning: Using `tqdm.autonotebook.tqdm` in notebook mode. Use `tqdm.tqdm` instead to force console mode (e.g. in jupyter console)
+    /var/folders/7m/74_ct3hx33d878n626w1wxyc0000gn/T/ipykernel_31187/2096907171.py:8: TqdmExperimentalWarning: Using `tqdm.autonotebook.tqdm` in notebook mode. Use `tqdm.tqdm` instead to force console mode (e.g. in jupyter console)
       from tqdm.autonotebook import tqdm
 
 
@@ -59,6 +59,7 @@ def run_simulation(bandit, policy=EGreedy(epsilon=0.0), n=N, dynamic=False):
 
 ```python
 bandit = NeuralBandit(n_arms=len(env.actions), batch=1)
+# avg_rewards, total_reward = run_simulation(bandit, policy=Softmax(tau=0.1))
 avg_rewards, total_reward = run_simulation(bandit)
 total_reward
 ```
@@ -70,7 +71,7 @@ total_reward
 
 
 
-    307.0
+    227.0
 
 
 
@@ -82,7 +83,7 @@ plt.plot(range(N), avg_rewards)
 
 
 
-    [<matplotlib.lines.Line2D at 0x12649c1c0>]
+    [<matplotlib.lines.Line2D at 0x1253ea200>]
 
 
 
@@ -106,7 +107,7 @@ total_reward
 
 
 
-    156.0
+    364.0
 
 
 
@@ -118,7 +119,7 @@ plt.plot(range(N), avg_rewards)
 
 
 
-    [<matplotlib.lines.Line2D at 0x1264fa950>]
+    [<matplotlib.lines.Line2D at 0x1252de800>]
 
 
 
@@ -144,7 +145,7 @@ total_reward
 
 
 
-    462.0
+    466.0
 
 
 
@@ -156,7 +157,7 @@ plt.plot(range(N), avg_rewards)
 
 
 
-    [<matplotlib.lines.Line2D at 0x126591660>]
+    [<matplotlib.lines.Line2D at 0x12510a4a0>]
 
 
 
@@ -182,7 +183,7 @@ total_reward
 
 
 
-    399.0
+    452.0
 
 
 
@@ -194,7 +195,7 @@ plt.plot(range(N), avg_rewards)
 
 
 
-    [<matplotlib.lines.Line2D at 0x126604f10>]
+    [<matplotlib.lines.Line2D at 0x125176e30>]
 
 
 
@@ -230,8 +231,8 @@ for i in range(1):
     bandit.update(state, action, reward)
 ```
 
-    rewards [ 0.04031271  1.001804   -0.01953641 -0.11485421 -0.09468305 -0.11983435
-     -0.09446142]
+    rewards [ 0.00348707  0.9996371   0.2909214  -0.00781755 -0.00839632 -0.01128122
+     -0.01064294]
     action 1
     reward -1.0
 
@@ -239,8 +240,3 @@ for i in range(1):
 ## Conclusion
 
 Per-arm bandit seems to be performing better, for unknown reasons. The feature-interaction doesn't seem to be doing its work when using torch or keras compared to scikit-learn's MLP.
-
-
-```python
-
-```
