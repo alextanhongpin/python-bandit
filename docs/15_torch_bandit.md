@@ -15,7 +15,7 @@ from bandit.torch import NeuralBandit, NeuralPerArmBandit, create_model
 sns.set_theme()
 ```
 
-    /var/folders/7m/74_ct3hx33d878n626w1wxyc0000gn/T/ipykernel_90415/2096907171.py:8: TqdmExperimentalWarning: Using `tqdm.autonotebook.tqdm` in notebook mode. Use `tqdm.tqdm` instead to force console mode (e.g. in jupyter console)
+    /var/folders/7m/74_ct3hx33d878n626w1wxyc0000gn/T/ipykernel_22375/2096907171.py:8: TqdmExperimentalWarning: Using `tqdm.autonotebook.tqdm` in notebook mode. Use `tqdm.tqdm` instead to force console mode (e.g. in jupyter console)
       from tqdm.autonotebook import tqdm
 
 
@@ -58,7 +58,7 @@ def run_simulation(bandit, policy=EGreedy(epsilon=0.0), n=N, dynamic=False):
 
 
 ```python
-bandit = NeuralBandit(n_arms=len(env.actions))
+bandit = NeuralBandit(n_arms=len(env.actions), batch=1)
 avg_rewards, total_reward = run_simulation(bandit)
 total_reward
 ```
@@ -70,7 +70,7 @@ total_reward
 
 
 
-    346.0
+    307.0
 
 
 
@@ -82,7 +82,7 @@ plt.plot(range(N), avg_rewards)
 
 
 
-    [<matplotlib.lines.Line2D at 0x120ed4c70>]
+    [<matplotlib.lines.Line2D at 0x12649c1c0>]
 
 
 
@@ -94,7 +94,7 @@ plt.plot(range(N), avg_rewards)
 
 
 ```python
-bandit = NeuralBandit(n_arms=len(env.actions))
+bandit = NeuralBandit(n_arms=len(env.actions), batch=1)
 avg_rewards, total_reward = run_simulation(bandit, dynamic=True)
 total_reward
 ```
@@ -106,7 +106,7 @@ total_reward
 
 
 
-    170.0
+    156.0
 
 
 
@@ -118,7 +118,7 @@ plt.plot(range(N), avg_rewards)
 
 
 
-    [<matplotlib.lines.Line2D at 0x1238fde10>]
+    [<matplotlib.lines.Line2D at 0x1264fa950>]
 
 
 
@@ -144,7 +144,7 @@ total_reward
 
 
 
-    348.0
+    462.0
 
 
 
@@ -156,7 +156,7 @@ plt.plot(range(N), avg_rewards)
 
 
 
-    [<matplotlib.lines.Line2D at 0x12397b5e0>]
+    [<matplotlib.lines.Line2D at 0x126591660>]
 
 
 
@@ -182,7 +182,7 @@ total_reward
 
 
 
-    470.0
+    399.0
 
 
 
@@ -194,7 +194,7 @@ plt.plot(range(N), avg_rewards)
 
 
 
-    [<matplotlib.lines.Line2D at 0x123a09e70>]
+    [<matplotlib.lines.Line2D at 0x126604f10>]
 
 
 
@@ -206,31 +206,41 @@ plt.plot(range(N), avg_rewards)
 
 
 ```python
-bandit = NeuralBandit(n_arms=len(env.actions))
+# bandit = NeuralBandit(n_arms=len(env.actions), batch=1)
 
 # bandit = NeuralPerArmBandit()
 
 policy = EGreedy(epsilon=0.0)
 rng = np.random.RandomState(42)
-state = env.observe(rng)
 
+for i in range(1):
+    state = env.observe(rng)
 
-rewards = bandit.pull(state)
-print("rewards", rewards)
+    rewards = bandit.pull(state)
+    print("rewards", rewards)
 
-action = policy(rewards)
+    action = policy(rewards)
 
-reward = env.get_cost(state, env.actions[action])
-print("action", action)
-print("reward", reward)
+    reward = env.get_cost(state, env.actions[action])
+    print("action", action)
+    print("reward", reward)
 
-# 3. Update the model.
+    # 3. Update the model.
 
-bandit.update(state, action, reward)
+    bandit.update(state, action, reward)
 ```
 
-    rewards [-0.06754722  0.2109358  -0.13107799  0.06537426 -0.08250759 -0.00643894
-     -0.08250759]
+    rewards [ 0.04031271  1.001804   -0.01953641 -0.11485421 -0.09468305 -0.11983435
+     -0.09446142]
     action 1
     reward -1.0
 
+
+## Conclusion
+
+Per-arm bandit seems to be performing better, for unknown reasons. The feature-interaction doesn't seem to be doing its work when using torch or keras compared to scikit-learn's MLP.
+
+
+```python
+
+```

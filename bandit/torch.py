@@ -14,7 +14,8 @@ def init_weights(m):
         # torch.nn.init.xavier_uniform_(m.weight)
         # m.bias.data.fill_(0.01)
         n = m.in_features
-        y = 1.0 / np.sqrt(n)
+        # y = 1.0 / np.sqrt(n)
+        y = 1.0 / n
         m.weight.data.uniform_(-y, y)
         m.bias.data.fill_(0.01)
 
@@ -22,6 +23,8 @@ def init_weights(m):
 def create_model():
     model = torch.nn.Sequential(
         torch.nn.Linear(n_features, 32),
+        torch.nn.ReLU(),
+        torch.nn.Linear(32, 32),
         torch.nn.ReLU(),
         torch.nn.Linear(32, 1),
     )
@@ -54,11 +57,30 @@ class NeuralBandit(BaseBandit):
         self.optimizer = torch.optim.Adam(self.model.parameters(), lr=0.01)
 
     def update(self, state: dict, action: int, reward: int):
+        n = len(self.rewards)
+        b = self.batch
+        if b <= 1:
+            return self.update_single(state, action, reward)
+        update = n % b == 0 and n != 0
+        if not update:
+            self.rewards.append(reward)
+            self.state_actions.append(feature_interaction(state, action))
+            return
+        X = torch.Tensor(self.preprocess.transform(self.state_actions).toarray())
+        y = torch.Tensor(self.rewards)
+        loss = self.loss_fn(self.model(X), y)
+        self.optimizer.zero_grad()
+        loss.backward()
+        self.optimizer.step()
+        self.rewards = []
+        self.state_actions = []
+
+    def update_single(self, state: dict, action: int, reward: int):
         X = torch.Tensor(
             self.preprocess.transform([feature_interaction(state, action)]).toarray()
         )
         y_pred = self.model(X)
-        y = torch.Tensor([[reward]])
+        y = torch.Tensor([[reward + np.random.random() / 100.0]])
         loss = self.loss_fn(y_pred, y)
         self.optimizer.zero_grad()
         loss.backward()
