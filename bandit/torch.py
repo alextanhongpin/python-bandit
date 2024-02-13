@@ -9,15 +9,17 @@ from .base import BaseBandit
 n_features = 8
 
 
-def init_weights(m):
-    if isinstance(m, torch.nn.Linear):
+def init_weights(layer):
+    if isinstance(layer, torch.nn.Linear):
         # torch.nn.init.xavier_uniform_(m.weight)
         # m.bias.data.fill_(0.01)
-        n = m.in_features
+        # n = m.in_features
         # y = 1.0 / np.sqrt(n)
-        y = 1.0 / n
-        m.weight.data.uniform_(-y, y)
-        m.bias.data.fill_(0.01)
+        # y = 1.0 / n
+        # m.weight.data.uniform_(-y, y)
+        # m.bias.data.fill_(0.01)
+        # From Pearl RL.
+        torch.nn.init.xavier_normal_(layer.weight)
 
 
 def create_model():
@@ -26,7 +28,7 @@ def create_model():
         torch.nn.ReLU(),
         torch.nn.Linear(32, 32),
         torch.nn.ReLU(),
-        torch.nn.Linear(32, 1),
+        torch.nn.Linear(32, 1, bias=False),  # From Pearl RL.
     )
     return model
 

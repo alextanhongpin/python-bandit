@@ -15,7 +15,7 @@ from bandit.torch import NeuralBandit, NeuralPerArmBandit, create_model
 sns.set_theme()
 ```
 
-    /var/folders/7m/74_ct3hx33d878n626w1wxyc0000gn/T/ipykernel_31187/2096907171.py:8: TqdmExperimentalWarning: Using `tqdm.autonotebook.tqdm` in notebook mode. Use `tqdm.tqdm` instead to force console mode (e.g. in jupyter console)
+    /var/folders/7m/74_ct3hx33d878n626w1wxyc0000gn/T/ipykernel_15753/2096907171.py:8: TqdmExperimentalWarning: Using `tqdm.autonotebook.tqdm` in notebook mode. Use `tqdm.tqdm` instead to force console mode (e.g. in jupyter console)
       from tqdm.autonotebook import tqdm
 
 
@@ -71,7 +71,7 @@ total_reward
 
 
 
-    227.0
+    222.0
 
 
 
@@ -83,7 +83,7 @@ plt.plot(range(N), avg_rewards)
 
 
 
-    [<matplotlib.lines.Line2D at 0x1253ea200>]
+    [<matplotlib.lines.Line2D at 0x128260df0>]
 
 
 
@@ -107,7 +107,7 @@ total_reward
 
 
 
-    364.0
+    171.0
 
 
 
@@ -119,7 +119,7 @@ plt.plot(range(N), avg_rewards)
 
 
 
-    [<matplotlib.lines.Line2D at 0x1252de800>]
+    [<matplotlib.lines.Line2D at 0x12ac64d00>]
 
 
 
@@ -145,7 +145,7 @@ total_reward
 
 
 
-    466.0
+    479.0
 
 
 
@@ -157,7 +157,7 @@ plt.plot(range(N), avg_rewards)
 
 
 
-    [<matplotlib.lines.Line2D at 0x12510a4a0>]
+    [<matplotlib.lines.Line2D at 0x12acd64a0>]
 
 
 
@@ -183,7 +183,7 @@ total_reward
 
 
 
-    452.0
+    447.0
 
 
 
@@ -195,7 +195,7 @@ plt.plot(range(N), avg_rewards)
 
 
 
-    [<matplotlib.lines.Line2D at 0x125176e30>]
+    [<matplotlib.lines.Line2D at 0x12ad4b940>]
 
 
 
@@ -231,8 +231,8 @@ for i in range(1):
     bandit.update(state, action, reward)
 ```
 
-    rewards [ 0.00348707  0.9996371   0.2909214  -0.00781755 -0.00839632 -0.01128122
-     -0.01064294]
+    rewards [-1.2420452   0.9984168  -0.35861126 -0.46358806 -0.4326533  -0.46654683
+     -0.5520654 ]
     action 1
     reward -1.0
 
