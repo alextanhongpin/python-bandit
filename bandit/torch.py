@@ -19,6 +19,7 @@ def init_weights(layer):
         # m.weight.data.uniform_(-y, y)
         # m.bias.data.fill_(0.01)
         # From Pearl RL.
+        # https://github.com/facebookresearch/Pearl/blob/main/pearl/neural_networks/common/value_networks.py#L52
         torch.nn.init.xavier_normal_(layer.weight)
 
 
@@ -28,6 +29,7 @@ def create_model():
         torch.nn.ReLU(),
         torch.nn.Linear(32, 32),
         torch.nn.ReLU(),
+        # https://github.com/facebookresearch/Pearl/blob/main/pearl/neural_networks/contextual_bandit/neural_linear_regression.py#L77
         torch.nn.Linear(32, 1, bias=False),  # From Pearl RL.
     )
     return model
